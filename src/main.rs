@@ -6,6 +6,8 @@ fn main() {
     // first_problem_second_part();
     // second_problem_first_part();
     // second_problem_second_part();
+    // third_problem_first_part();
+    third_problem_second_part();
 }
 
 
@@ -158,5 +160,125 @@ fn second_problem_second_part() -> io::Result<()> {
         }
     }
     println!("{} ", total_valid_passwords);
+    Ok(())
+}
+
+fn third_problem_first_part() -> io::Result<()> {
+
+    let file = File::open("./data/3.txt")?;
+    let reader = BufReader::new(file);
+    
+
+    let mut array = vec![];
+
+
+    for line in reader.lines() {
+        let mut second_array = vec![];
+        for c in line.expect("lines failed").chars() {
+            
+            second_array.push(c);
+        }
+        array.push(second_array);
+    }   
+
+    let mut second_index = 0;
+    let mut number_of_trees = 0;
+    let mut right_value = 3;
+
+    for i in 0..array.len() {
+        if second_index > array[i].len() -1 {
+            let mut difference = second_index - array[i].len();
+            second_index = difference;
+        }
+        if array[i][second_index] == '#'{
+            number_of_trees+=1;
+        }
+        second_index +=right_value;
+    }
+    
+    println!("{}", number_of_trees);
+    Ok(())
+}
+
+
+fn third_problem_second_part() -> io::Result<()> {
+
+    let file = File::open("./data/3.txt")?;
+    let reader = BufReader::new(file);
+    
+
+    let mut location_graph = vec![];
+
+
+    for line in reader.lines() {
+        let mut location_line = vec![];
+
+        for c in line.expect("lines failed").chars() {
+            location_line.push(c);
+        }
+        location_graph.push(location_line);
+    }   
+
+    let mut right_value = 1;
+    let mut down_value = 1;
+    
+
+    let mut paths = [[0usize; 2]; 5];
+    paths[0][0] = 1;
+    paths[0][1] = 1;
+
+    paths[1][0] = 1;
+    paths[1][1] = 3;
+
+    paths[2][0] = 1;
+    paths[2][1] = 5;
+
+    paths[3][0] = 1;
+    paths[3][1] = 7;
+
+    paths[4][0] = 2;
+    paths[4][1] = 1;
+
+
+    let mut product_of_number_of_trees:u32 = 1;
+
+
+    for path in paths.iter() {
+        down_value = path[0];
+        right_value = path[1];
+
+        let mut right_index = 0;
+
+        let mut down_index = 0;
+        
+        let mut number_of_trees = 0;
+
+        println!("Path {}", down_value);
+
+        while true {
+            
+            if (down_index >= location_graph.len()) {
+                println!("Number of trees {}", number_of_trees);
+                product_of_number_of_trees = product_of_number_of_trees * number_of_trees;
+                break;
+            }
+
+            if right_index > location_graph[down_index].len() -1 {
+                let mut difference = right_index - location_graph[down_index].len();
+                right_index = difference;
+            }
+
+            if location_graph[down_index][right_index] == '#'{
+                number_of_trees+=1;
+            }
+            // println!("{} {} {}", down_index, right_index, location_graph[down_index][right_index]);
+            right_index += right_value;
+            down_index += down_value;
+
+        }
+    }
+        
+    
+    println!("{}", product_of_number_of_trees);
     Ok(())
 }
