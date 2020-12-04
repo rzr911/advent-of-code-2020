@@ -7,7 +7,9 @@ fn main() {
     // second_problem_first_part();
     // second_problem_second_part();
     // third_problem_first_part();
-    third_problem_second_part();
+    // third_problem_second_part();
+    fourth_problem_first_part();
+    // fourth_problem_second_part();
 }
 
 
@@ -280,5 +282,42 @@ fn third_problem_second_part() -> io::Result<()> {
         
     
     println!("{}", product_of_number_of_trees);
+    Ok(())
+}
+
+fn fourth_problem_first_part() -> io::Result<()> {
+
+    let file = File::open("./data/4.txt")?;
+    let reader = BufReader::new(file);
+    let mut passport_data:Vec<String> = vec![];
+    let mut index = 0;
+    let mut prev_line_string:String = "".to_string();
+
+    for line in reader.lines() {
+        let string:&str = &line?;
+
+        if string.chars().count() == 0 {
+            index +=1;
+            prev_line_string = "".to_string();
+        } else {
+
+            if index == passport_data.len() {
+                passport_data.push(string.to_string());
+            } else {
+                passport_data[index].push_str(string);
+            }
+        }
+    }   
+    
+    let mut valid_passports = 0;
+
+    for password_value in passport_data.iter() {
+        if password_value.contains("byr") && password_value.contains("iyr") && password_value.contains("eyr") && password_value.contains("hgt") && password_value.contains("hcl") && password_value.contains("ecl") && password_value.contains("pid") {
+            valid_passports +=1;
+        }
+    }
+
+    println!("Valid passports {}", valid_passports);
+    
     Ok(())
 }
