@@ -11,6 +11,9 @@ fn main() {
     // third_problem_second_part();
     // fourth_problem_first_part();
     // fourth_problem_second_part();
+
+    // fifth_problem_first_part();
+    fifth_problem_second_part();
 }
 
 
@@ -424,4 +427,110 @@ fn if_string_in_vector(value: &str, vector: &Vec<&str>) -> bool {
     }
 
     return false;
+}
+
+
+fn fifth_problem_first_part()-> io::Result<()> {
+    let file = File::open("./data/5.txt")?;
+    let reader = BufReader::new(file);
+    let mut passport_data:Vec<String> = vec![];
+    let mut index = 0;
+
+    let number: u32 = 2;
+    let row_length:u32 = 7;
+    let mut range : u32 = number.pow((row_length-index)) - 1;
+    let mut row_index_array:[u32;2] = [0, range];
+    let mut column_index_array:[u32;2] = [0, row_length];
+    let mut highest_seat_id: u32 = 0;
+
+    for line in reader.lines() {
+        row_index_array = [0, range];
+        column_index_array = [0, row_length];
+        let passport:&str = &line?;
+        let passport_chars: Vec<char> = passport.chars().collect();
+
+        for i in 0..row_length {
+            row_index_array = fifth_problem_get_row(passport_chars[i as usize], row_index_array);
+        }
+        
+        for i in row_length..10 {
+            column_index_array = fifth_problem_get_row(passport_chars[i as usize], column_index_array);
+        }
+
+        println!("{}", row_index_array[0]);
+        println!("{}", column_index_array[0]);
+
+        let seat_id: u32 = row_index_array[0] * 8 + column_index_array[0];
+
+        if seat_id > highest_seat_id {
+            highest_seat_id = seat_id;
+        }
+    }
+    println!("{}", highest_seat_id);
+    Ok(())
+}
+
+fn fifth_problem_second_part()-> io::Result<()> {
+    let file = File::open("./data/5.txt")?;
+    let reader = BufReader::new(file);
+    let mut passport_data:Vec<String> = vec![];
+    let mut index = 0;
+
+    let number: u32 = 2;
+    let row_length:u32 = 7;
+    let mut range : u32 = number.pow((row_length-index)) - 1;
+    let mut row_index_array:[u32;2] = [0, range];
+    let mut column_index_array:[u32;2] = [0, row_length];
+    let mut highest_seat_id: u32 = 0;
+    
+    let mut seat_id_vector = vec![];
+
+    for line in reader.lines() {
+        row_index_array = [0, range];
+        column_index_array = [0, row_length];
+        let passport:&str = &line?;
+        let passport_chars: Vec<char> = passport.chars().collect();
+
+        for i in 0..row_length {
+            row_index_array = fifth_problem_get_row(passport_chars[i as usize], row_index_array);
+        }
+        
+        for i in row_length..10 {
+            column_index_array = fifth_problem_get_row(passport_chars[i as usize], column_index_array);
+        }
+
+
+        let seat_id: u32 = row_index_array[0] * 8 + column_index_array[0];
+        seat_id_vector.push(seat_id);
+
+    }
+    seat_id_vector.sort();
+    let mut my_seat = 0;
+    for i in 0..seat_id_vector.len() {
+        if i+1 < seat_id_vector.len() {
+            let current_value = seat_id_vector[i];
+            let next_value = seat_id_vector[i+1];
+            if next_value - current_value != 1 {
+                println!("{} {}", seat_id_vector[i], seat_id_vector[i+1]);
+                my_seat = seat_id_vector[i+1] - 1;
+                break;
+            }
+        }
+        
+    }
+    println!("{}", my_seat);
+    Ok(())
+}
+
+fn fifth_problem_get_row(row_identifier: char, mut index_array:[u32; 2])-> [u32; 2] {
+    let mut partition_value = (index_array[1] - index_array[0]) / 2;
+    
+    if row_identifier == 'B' || row_identifier == 'R' {
+        index_array[0] += partition_value + 1;
+    } else {
+        index_array[1]  = index_array[0] + partition_value;
+    }
+
+
+    return index_array;
 }
