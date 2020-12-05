@@ -1,6 +1,7 @@
 use std::fs::File;
 use std::io::{self, prelude::*, BufReader};
-use regex::Regex;
+// use regex::Regex;
+use fancy_regex::Regex;
 fn main() {
     // first_problem_first_part();
     // first_problem_second_part();
@@ -8,7 +9,7 @@ fn main() {
     // second_problem_second_part();
     // third_problem_first_part();
     // third_problem_second_part();
-    fourth_problem_first_part();
+    // fourth_problem_first_part();
     // fourth_problem_second_part();
 }
 
@@ -87,83 +88,83 @@ fn first_problem_second_part() -> io::Result<()> {
 }
 
 
-fn second_problem_first_part() -> io::Result<()> {
+// fn second_problem_first_part() -> io::Result<()> {
 
-    let file = File::open("./data/2.txt")?;
-    let reader = BufReader::new(file);
-    let mut lower_limit: u32 = 0;
-    let mut upper_limit: u32 = 0;
-    let mut total_valid_passwords: u32 = 0;
+//     let file = File::open("./data/2.txt")?;
+//     let reader = BufReader::new(file);
+//     let mut lower_limit: u32 = 0;
+//     let mut upper_limit: u32 = 0;
+//     let mut total_valid_passwords: u32 = 0;
 
-    let mut eligible_character = "";
-    let mut password_string = "";
-    let re = Regex::new(r"(\d+)-(\d+) (\w): (\w+)").unwrap();
+//     let mut eligible_character = "";
+//     let mut password_string = "";
+//     let re = Regex::new(r"(\d+)-(\d+) (\w): (\w+)").unwrap();
     
-    for line in reader.lines() {
-        let string = &line.unwrap();
+//     for line in reader.lines() {
+//         let string = &line.unwrap();
 
-        for cap in re.captures_iter(string) {
-            lower_limit = cap[1].parse::<u32>().unwrap();
-            upper_limit = cap[2].parse::<u32>().unwrap();
+//         for cap in re.captures(string) {
+//             lower_limit = cap[1].parse::<u32>().unwrap();
+//             upper_limit = cap[2].parse::<u32>().unwrap();
 
-            eligible_character = &cap[3];
-            password_string = &cap[4];
+//             eligible_character = &cap[3];
+//             password_string = &cap[4];
 
-            let c = password_string.matches(eligible_character).count();
-            if c as u32 >= lower_limit && c as u32 <= upper_limit {
-                total_valid_passwords+=1;
-            }
+//             let c = password_string.matches(eligible_character).count();
+//             if c as u32 >= lower_limit && c as u32 <= upper_limit {
+//                 total_valid_passwords+=1;
+//             }
             
-        }
-    }
-    println!("{} ", total_valid_passwords);
-    Ok(())
-}
+//         }
+//     }
+//     println!("{} ", total_valid_passwords);
+//     Ok(())
+// }
 
-fn second_problem_second_part() -> io::Result<()> {
+// fn second_problem_second_part() -> io::Result<()> {
 
-    let file = File::open("./data/2.txt")?;
-    let reader = BufReader::new(file);
-    let mut lower_index: u32 = 0;
-    let mut upper_index: u32 = 0;
-    let mut total_valid_passwords: u32 = 0;
+//     let file = File::open("./data/2.txt")?;
+//     let reader = BufReader::new(file);
+//     let mut lower_index: u32 = 0;
+//     let mut upper_index: u32 = 0;
+//     let mut total_valid_passwords: u32 = 0;
 
-    let mut eligible_character = "";
-    let mut password_string = "";
-    let re = Regex::new(r"(\d+)-(\d+) (\w): (\w+)").unwrap();
+//     let mut eligible_character = "";
+//     let mut password_string = "";
+//     let re = Regex::new(r"(\d+)-(\d+) (\w): (\w+)").unwrap();
     
-    for line in reader.lines() {
-        let mut is_valid = false;
-        let string = &line.unwrap();
+//     for line in reader.lines() {
+//         let mut is_valid = false;
+//         let string = &line.unwrap();
         
-        for cap in re.captures_iter(string) {
-            lower_index = cap[1].parse::<u32>().unwrap();
-            upper_index = cap[2].parse::<u32>().unwrap();
+//         for cap in re.captures_iter(string) {
+//             lower_index = cap[1].parse::<u32>().unwrap();
+//             upper_index = cap[2].parse::<u32>().unwrap();
 
-            eligible_character = &cap[3];
-            password_string = &cap[4];
+//             eligible_character = &cap[3];
+//             password_string = &cap[4];
 
-            let password_string_vector: Vec<char> = password_string.chars().collect();
+//             let password_string_vector: Vec<char> = password_string.chars().collect();
 
-            if (password_string_vector.get(lower_index as usize -1) == Some(&eligible_character.chars().nth(0).unwrap())) {
-                is_valid = !is_valid;
-            }
+//             if (password_string_vector.get(lower_index as usize -1) == Some(&eligible_character.chars().nth(0).unwrap())) {
+//                 is_valid = !is_valid;
+//             }
             
 
-            if (password_string_vector.get(upper_index as usize -1) == Some(&eligible_character.chars().nth(0).unwrap())) {
-                is_valid = !is_valid;
-            }
+//             if (password_string_vector.get(upper_index as usize -1) == Some(&eligible_character.chars().nth(0).unwrap())) {
+//                 is_valid = !is_valid;
+//             }
 
 
-            if is_valid {
-                total_valid_passwords += 1;
-            }
+//             if is_valid {
+//                 total_valid_passwords += 1;
+//             }
             
-        }
-    }
-    println!("{} ", total_valid_passwords);
-    Ok(())
-}
+//         }
+//     }
+//     println!("{} ", total_valid_passwords);
+//     Ok(())
+// }
 
 fn third_problem_first_part() -> io::Result<()> {
 
@@ -320,4 +321,107 @@ fn fourth_problem_first_part() -> io::Result<()> {
     println!("Valid passports {}", valid_passports);
     
     Ok(())
+}
+
+fn fourth_problem_second_part() -> io::Result<()> {
+
+    let file = File::open("./data/4.txt")?;
+    let reader = BufReader::new(file);
+    let mut passport_data:Vec<String> = vec![];
+    let mut index = 0;
+    let mut prev_line_string:String = "".to_string();
+
+    for line in reader.lines() {
+        let string:&str = &line?;
+
+        if string.chars().count() == 0 {
+            index +=1;
+            prev_line_string = "".to_string();
+        } else {
+
+            if index == passport_data.len() {
+                passport_data.push(string.to_string());
+            } else {
+                passport_data[index].push_str(" ");
+                passport_data[index].push_str(string);
+            }
+        }
+    }   
+    
+    let mut valid_passports = 0;
+
+    let re = Regex::new(r"(?=.*(byr):([0-9]{4}))(?=.*(iyr):([0-9]{4}))(?=.*(eyr):([0-9]{4}))(?=.*(hgt):([0-9]{2,3})(cm|in))(?=.*(ecl):([a-z]{3}))(?=.*(pid):([0-9]+))(?=.*(hcl):(#[0-9a-f]{6}))").unwrap();
+    let valid_ecl_values = vec!["amb","blu", "brn", "gry", "grn", "hzl", "oth"];
+
+    for passport_value in passport_data.iter() {
+        let mut is_valid = true;
+
+        let captures =  re.captures(passport_value);
+        let wrapped_captures = &captures.unwrap();
+        
+        if (wrapped_captures.is_some()) {
+            let byr = wrapped_captures.as_ref().unwrap().get(2).unwrap().as_str().parse::<i32>().unwrap();
+            let iyr = wrapped_captures.as_ref().unwrap().get(4).unwrap().as_str().parse::<i32>().unwrap();
+            let eyr = wrapped_captures.as_ref().unwrap().get(6).unwrap().as_str().parse::<i32>().unwrap();
+
+            let hgt_value = wrapped_captures.as_ref().unwrap().get(8).unwrap().as_str().parse::<i32>().unwrap();
+            let hgt_unit = wrapped_captures.as_ref().unwrap().get(9).unwrap().as_str();
+            let ecl = wrapped_captures.as_ref().unwrap().get(11).unwrap().as_str();
+            
+            let pid = wrapped_captures.as_ref().unwrap().get(13).unwrap().as_str();
+
+            if pid.chars().count() != 9 {
+                println!("{}", pid.chars().count());
+                is_valid = false;
+            }
+
+            let hcl = wrapped_captures.as_ref().unwrap().get(15).unwrap().as_str();
+
+            if !(fourth_problem_is_height_valid(hgt_value, hgt_unit)){
+                is_valid = false;
+            }
+
+            if !(if_string_in_vector(ecl, &valid_ecl_values)) {
+                is_valid = false;
+            }
+
+            if byr < 1920 || byr > 2002 || iyr < 2010 || iyr > 2020 || eyr < 2020 || eyr > 2030 {
+                is_valid = false;
+            }
+
+            if is_valid {
+                println!("{},{},{},{}{},{},{},{}",byr,iyr,eyr,hgt_value,hgt_unit, ecl,pid, hcl );
+                valid_passports +=1;
+            }
+            
+            
+        }
+
+    }
+
+    println!("Valid passports {}", valid_passports);
+    
+    Ok(())
+}
+
+fn fourth_problem_is_height_valid(value:i32, unit: &str) -> bool {
+    
+    if unit == "cm" && value >= 150 && value  <= 193 {
+        return true; 
+    }
+
+    if unit == "in" && value >= 59 && value <= 76 {
+        return true;
+    }
+
+    return false;
+}
+
+fn if_string_in_vector(value: &str, vector: &Vec<&str>) -> bool {
+
+    if vector.iter().any(|&i| i==value) {
+        return true;
+    }
+
+    return false;
 }
