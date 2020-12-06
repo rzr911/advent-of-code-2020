@@ -1,9 +1,10 @@
 use std::fs::File;
 use std::io::{self, prelude::*, BufReader};
-// use regex::Regex;
+use std::collections::HashSet;
+use regex;
 use fancy_regex::Regex;
 fn main() {
-    // first_problem_first_part();
+    first_problem_first_part();
     // first_problem_second_part();
     // second_problem_first_part();
     // second_problem_second_part();
@@ -13,7 +14,9 @@ fn main() {
     // fourth_problem_second_part();
 
     // fifth_problem_first_part();
-    fifth_problem_second_part();
+    // fifth_problem_second_part();
+    // sixth_problem_first_part();
+    // sixth_problem_second_part();
 }
 
 
@@ -91,83 +94,93 @@ fn first_problem_second_part() -> io::Result<()> {
 }
 
 
-// fn second_problem_first_part() -> io::Result<()> {
+fn second_problem_first_part() -> io::Result<()> {
 
-//     let file = File::open("./data/2.txt")?;
-//     let reader = BufReader::new(file);
-//     let mut lower_limit: u32 = 0;
-//     let mut upper_limit: u32 = 0;
-//     let mut total_valid_passwords: u32 = 0;
+    let file = File::open("./data/2.txt")?;
+    let reader = BufReader::new(file);
+    let mut lower_limit: u32 = 0;
+    let mut upper_limit: u32 = 0;
+    let mut total_valid_passwords: u32 = 0;
 
-//     let mut eligible_character = "";
-//     let mut password_string = "";
-//     let re = Regex::new(r"(\d+)-(\d+) (\w): (\w+)").unwrap();
+    let mut eligible_character = "";
+    let mut password_string = "";
+    let re = Regex::new(r"(\d+)-(\d+) (\w): (\w+)").unwrap();
     
-//     for line in reader.lines() {
-//         let string = &line.unwrap();
+    for line in reader.lines() {
+        let string = &line.unwrap();
 
-//         for cap in re.captures(string) {
-//             lower_limit = cap[1].parse::<u32>().unwrap();
-//             upper_limit = cap[2].parse::<u32>().unwrap();
+        let captures =  re.captures(string);
+        let wrapped_captures = &captures.unwrap();
 
-//             eligible_character = &cap[3];
-//             password_string = &cap[4];
+        if (wrapped_captures.is_some()) {
+            lower_limit = wrapped_captures.as_ref().unwrap().get(1).unwrap().as_str().parse::<u32>().unwrap();
+            upper_limit = wrapped_captures.as_ref().unwrap().get(2).unwrap().as_str().parse::<u32>().unwrap();
 
-//             let c = password_string.matches(eligible_character).count();
-//             if c as u32 >= lower_limit && c as u32 <= upper_limit {
-//                 total_valid_passwords+=1;
-//             }
+            eligible_character = wrapped_captures.as_ref().unwrap().get(3).unwrap().as_str();
+            password_string = wrapped_captures.as_ref().unwrap().get(4).unwrap().as_str();
+
+            let c = password_string.matches(eligible_character).count();
+            if c as u32 >= lower_limit && c as u32 <= upper_limit {
+                total_valid_passwords+=1;
+            }
             
-//         }
-//     }
-//     println!("{} ", total_valid_passwords);
-//     Ok(())
-// }
+        }
+    }
+    println!("{} ", total_valid_passwords);
+    Ok(())
+}
 
-// fn second_problem_second_part() -> io::Result<()> {
+fn second_problem_second_part() -> io::Result<()> {
 
-//     let file = File::open("./data/2.txt")?;
-//     let reader = BufReader::new(file);
-//     let mut lower_index: u32 = 0;
-//     let mut upper_index: u32 = 0;
-//     let mut total_valid_passwords: u32 = 0;
+    let file = File::open("./data/2.txt")?;
+    let reader = BufReader::new(file);
+    let mut lower_index: u32 = 0;
+    let mut upper_index: u32 = 0;
+    let mut total_valid_passwords: u32 = 0;
 
-//     let mut eligible_character = "";
-//     let mut password_string = "";
-//     let re = Regex::new(r"(\d+)-(\d+) (\w): (\w+)").unwrap();
+    let mut eligible_character = "";
+    let mut password_string = "";
+    let re = Regex::new(r"(\d+)-(\d+) (\w): (\w+)").unwrap();
     
-//     for line in reader.lines() {
-//         let mut is_valid = false;
-//         let string = &line.unwrap();
+    for line in reader.lines() {
+        let mut is_valid = false;
+        let string = &line.unwrap();
+
+        let captures =  re.captures(string);
+        let wrapped_captures = &captures.unwrap();
         
-//         for cap in re.captures_iter(string) {
-//             lower_index = cap[1].parse::<u32>().unwrap();
-//             upper_index = cap[2].parse::<u32>().unwrap();
+        if (wrapped_captures.is_some()) {
+            lower_index = wrapped_captures.as_ref().unwrap().get(1).unwrap().as_str().parse::<u32>().unwrap();
+            upper_index = wrapped_captures.as_ref().unwrap().get(2).unwrap().as_str().parse::<u32>().unwrap();
 
-//             eligible_character = &cap[3];
-//             password_string = &cap[4];
+            eligible_character = wrapped_captures.as_ref().unwrap().get(3).unwrap().as_str();
+            password_string = wrapped_captures.as_ref().unwrap().get(4).unwrap().as_str();
 
-//             let password_string_vector: Vec<char> = password_string.chars().collect();
+            let password_string_vector: Vec<char> = password_string.chars().collect();
 
-//             if (password_string_vector.get(lower_index as usize -1) == Some(&eligible_character.chars().nth(0).unwrap())) {
-//                 is_valid = !is_valid;
-//             }
+            if (password_string_vector.get(lower_index as usize -1) == Some(&eligible_character.chars().nth(0).unwrap())) {
+                is_valid = !is_valid;
+            }
             
 
-//             if (password_string_vector.get(upper_index as usize -1) == Some(&eligible_character.chars().nth(0).unwrap())) {
-//                 is_valid = !is_valid;
-//             }
+            if (password_string_vector.get(upper_index as usize -1) == Some(&eligible_character.chars().nth(0).unwrap())) {
+                is_valid = !is_valid;
+            }
 
 
-//             if is_valid {
-//                 total_valid_passwords += 1;
-//             }
+            if is_valid {
+                total_valid_passwords += 1;
+            }
+        }
+        
+        // for cap in re.captures_iter(string) {
+        
             
-//         }
-//     }
-//     println!("{} ", total_valid_passwords);
-//     Ok(())
-// }
+        // }
+    }
+    println!("{} ", total_valid_passwords);
+    Ok(())
+}
 
 fn third_problem_first_part() -> io::Result<()> {
 
@@ -506,6 +519,7 @@ fn fifth_problem_second_part()-> io::Result<()> {
     }
     seat_id_vector.sort();
     let mut my_seat = 0;
+
     for i in 0..seat_id_vector.len() {
         if i+1 < seat_id_vector.len() {
             let current_value = seat_id_vector[i];
@@ -533,4 +547,109 @@ fn fifth_problem_get_row(row_identifier: char, mut index_array:[u32; 2])-> [u32;
 
 
     return index_array;
+}
+
+fn sixth_problem_first_part() -> io::Result<()> {
+    let file = File::open("./data/6.txt")?;
+    let reader = BufReader::new(file);
+    let mut passport_data:Vec<String> = vec![];
+    let mut index = 0;
+
+    let mut prev_line_string:String = "".to_string();
+
+    for line in reader.lines() {
+        let string:&str = &line?;
+
+        if string.chars().count() == 0 {
+            index +=1;
+            prev_line_string = "".to_string();
+        } else {
+
+            if index == passport_data.len() {
+                passport_data.push(string.to_string());
+            } else {
+                passport_data[index].push_str(" ");
+                passport_data[index].push_str(string);
+            }
+        }
+    }   
+
+    let mut sum_of_answers:i32 = 0;
+
+    for s in passport_data {
+        let mut unique_answers_set = HashSet::new();
+        let answers:Vec<char> = s.chars().collect();
+
+        for answer in answers {
+            if answer != ' ' {
+                unique_answers_set.insert(answer);
+            }
+        }
+        
+        sum_of_answers += unique_answers_set.len() as i32;
+
+    }
+
+    println!("{}", sum_of_answers);
+    Ok(())
+}
+
+
+fn sixth_problem_second_part() -> io::Result<()> {
+    let file = File::open("./data/6.txt")?;
+    let reader = BufReader::new(file);
+    let mut passport_data:Vec<String> = vec![];
+    let mut index = 0;
+
+    let mut prev_line_string:String = "".to_string();
+
+    for line in reader.lines() {
+        let string:&str = &line?;
+
+        if string.chars().count() == 0 {
+            index +=1;
+            prev_line_string = "".to_string();
+        } else {
+
+            if index == passport_data.len() {
+                passport_data.push(string.to_string());
+            } else {
+                passport_data[index].push_str(" ");
+                passport_data[index].push_str(string);
+            }
+        }
+    }   
+
+    let mut sum_of_answers:i32 = 0;
+
+    for s in passport_data {
+
+        let mut split = s.split(" ").collect::<Vec<_>>();
+        
+        if split.len() == 1 {
+            let answers:Vec<char> = s.chars().collect();
+            sum_of_answers+=answers.len() as i32;
+        } else {
+            sum_of_answers+=sixth_problem_count_common_characters(&split);
+        }
+
+    }
+
+    println!("{}", sum_of_answers);
+    Ok(())
+}
+
+
+fn sixth_problem_count_common_characters(vector: &Vec<&str>) -> i32 {
+    
+        let mut first_answer_set: HashSet<_> = vector[0].chars().collect();
+        let mut intersection: HashSet<_> = first_answer_set;
+        
+        for j in 0+1..vector.len() {
+            let current_index_answer_set: HashSet<_> = vector[j].chars().collect();
+            intersection = intersection.intersection(&current_index_answer_set).cloned().collect();
+        }
+
+    return intersection.len() as i32;
+    
 }
