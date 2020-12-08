@@ -28,8 +28,8 @@ fn main() {
 
     // seventh_problem_second_part();
 
-    eight_problem_first_part();
-    // eight_problem_second_part();
+    // eight_problem_first_part();
+    eight_problem_second_part();
 
 
     let elapsed = now.elapsed();
@@ -908,7 +908,58 @@ fn eight_problem_first_part() -> io::Result<()> {
 
     let instruction_regex = Regex::new(r"(nop|acc|jmp) (\+|-)(\d+)").unwrap();
     
+    
+    let instruction_cycle_response = eight_problem_execute_instruction_cycle(instructions);
+    println!("{}", instruction_cycle_response.1);
+    Ok(())
+}
+
+fn eight_problem_second_part() -> io::Result<()> {
+    let file = File::open("./data/test.txt")?;
+    let reader = BufReader::new(file);
+
+    let mut instructions:Vec<String> = vec![];
+    let mut index = 0;
+
+    let mut parsed_indexes:Vec<i32> = vec![];
+
+    let mut jmp_indexes: Vec<i32> = vec![];
+    let mut nop_indexes: Vec<i32> = vec![];
+
+
+    for line in reader.lines() {
+        let string:&str = &line?;
+
+        if string.contains("nop") {
+            nop_indexes.push(index);
+        } else if string.contains("jmp") {
+            jmp_indexes.push(index);
+        }
+
+        instructions.push(string.to_string());
+        index+=1;
+    }
+    
+    eight_problem_execute_instruction_cycle(instructions);
+
+    Ok(())
+}
+
+
+fn eight_problem_execute_instruction_cycle(instructions:Vec<String>) -> (bool, i32) {
+    let instruction_regex = Regex::new(r"(nop|acc|jmp) (\+|-)(\d+)").unwrap();
+
+    let mut current_index =  0 as i32;
+
+    let mut accumulator = 0 as i32;
+
+    let mut parsed_indexes:Vec<i32> = vec![];
+
     while (!parsed_indexes.contains(&current_index)) {
+        
+        if current_index == (instructions.len() - 1) as i32 {
+            return (true, accumulator);
+        }
 
         parsed_indexes.push(current_index);
         let current_instruction = &instructions[current_index as usize];
@@ -925,6 +976,7 @@ fn eight_problem_first_part() -> io::Result<()> {
             // println!("{:?} {} {}", count, instruction, sign);
 
             if instruction == "jmp" {
+
                 if sign == "+" {
                     current_index+=count;
                 } else {
@@ -933,6 +985,7 @@ fn eight_problem_first_part() -> io::Result<()> {
             } else {
             
                 if instruction == "acc" {
+
                     if sign == "+" {
                         accumulator+=count;
                     } else {
@@ -946,6 +999,8 @@ fn eight_problem_first_part() -> io::Result<()> {
         }
 
     }
+
     println!("{}", accumulator);
-    Ok(())
+
+    return (false, accumulator);
 }
