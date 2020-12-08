@@ -1,10 +1,14 @@
 use std::fs::File;
 use std::io::{self, prelude::*, BufReader};
 use std::collections::HashSet;
+use std::collections::HashMap;
+
 use regex;
 use fancy_regex::Regex;
 fn main() {
-    first_problem_first_part();
+    use std::time::Instant;
+    let now = Instant::now();
+    // first_problem_first_part();
     // first_problem_second_part();
     // second_problem_first_part();
     // second_problem_second_part();
@@ -17,6 +21,19 @@ fn main() {
     // fifth_problem_second_part();
     // sixth_problem_first_part();
     // sixth_problem_second_part();
+
+    
+
+    // seventh_problem_first_part();
+
+    // seventh_problem_second_part();
+
+    eight_problem_first_part();
+    // eight_problem_second_part();
+
+
+    let elapsed = now.elapsed();
+    println!("Elapsed: {:?}", elapsed);
 }
 
 
@@ -272,12 +289,10 @@ fn third_problem_second_part() -> io::Result<()> {
         
         let mut number_of_trees = 0;
 
-        println!("Path {}", down_value);
 
         while true {
             
             if (down_index >= location_graph.len()) {
-                println!("Number of trees {}", number_of_trees);
                 product_of_number_of_trees = product_of_number_of_trees * number_of_trees;
                 break;
             }
@@ -652,4 +667,285 @@ fn sixth_problem_count_common_characters(vector: &Vec<&str>) -> i32 {
 
     return intersection.len() as i32;
     
+}
+
+
+fn seventh_problem_first_part() -> io::Result<()> {
+    let file = File::open("./data/7.txt")?;
+    let reader = BufReader::new(file);
+
+    let mut luggage_rules:Vec<String> = vec![];
+    let mut index = 0;
+
+    let mut line_string:String = "".to_string();
+
+    // let re = Regex::new(r"(\w+ \w+) bags contain \d+ (\w+ \w+) bag.?,?.? ?[\d+]? ?(\w+ \w+)?").unwrap();
+    let re = Regex::new(r"(\w+ \w+) bags contain (.*)").unwrap();
+
+    let contained_bag_regex = Regex::new(r"(\w+ \w+) bag").unwrap();
+
+    let mut luggage_rules_map: HashMap<String, Vec<String>> = HashMap::new();
+
+    let mut final_bag_containers:HashSet<String> = HashSet::new();
+
+    
+
+    for line in reader.lines() {
+        let string:String = line?;
+        line_string = string.clone();
+        
+        let captures =  re.captures(&line_string);
+        luggage_rules.push(string.to_string());
+        let mut is_valid = true;
+
+      
+        let unwrapped_captures = &captures.unwrap();
+
+        let mut holder:String = "".to_string();
+        holder = unwrapped_captures.as_ref().unwrap().get(1).unwrap().as_str().to_string();
+        let second_string = unwrapped_captures.as_ref().unwrap().get(2).unwrap().as_str().to_string();
+        let mut start = 0;
+        let mut contained_bags_vector:Vec<String> = vec![];
+
+        while let Some (m) = contained_bag_regex.captures_from_pos (&second_string, start).unwrap() {
+            contained_bags_vector.push(m.get (1).unwrap().as_str().to_string());
+            start = m.get (0).unwrap().end(); // Or you can use `end` to avoid overlapping matches
+        }
+        luggage_rules_map.insert(holder, contained_bags_vector);
+        
+    }   
+
+    let our_bag = "shiny gold";
+
+    for rule in luggage_rules {
+        let captures =  re.captures(&rule);
+
+        let unwrapped_captures = &captures.unwrap();
+        let holder = unwrapped_captures.as_ref().unwrap().get(1).unwrap().as_str().to_string();
+
+        let second_string = unwrapped_captures.as_ref().unwrap().get(2).unwrap().as_str().to_string();
+        
+        let mut start = 0;
+
+        while let Some (m) = contained_bag_regex.captures_from_pos (&second_string, start).unwrap() {
+            let bag = m.get (1).unwrap().as_str().to_string();
+
+            if bag == our_bag {
+                final_bag_containers.insert(holder.clone());
+                let mut key_vectors = find_keys_for_value(&luggage_rules_map, &holder);
+                let mut index = 0;
+
+                    while(index < key_vectors.len()) {
+
+                        let mut temp_key_vectors = find_keys_for_value(&luggage_rules_map, key_vectors[index]);
+                        key_vectors.append(&mut temp_key_vectors.clone());
+                        final_bag_containers.insert(key_vectors[index].to_string().clone());
+                        
+                       
+                        index+=1;
+                    }
+                
+            }
+
+            start = m.get (0).unwrap().end(); // Or you can use `end` to avoid overlapping matches
+        }
+
+        if (unwrapped_captures.is_some()) {
+            let contained_bags = unwrapped_captures.as_ref().unwrap().iter();
+            let mut start = 0;
+            let mut contained_bags_vector:Vec<String> = vec![];
+            let mut holder:String = "".to_string();
+
+            for bag in contained_bags {
+
+                if bag.is_some() {
+                    
+                    if (start == 1) {
+                        holder = bag.as_ref().unwrap().as_str().to_string();
+                    }
+
+                    if (start > 1) {
+                        
+                        if bag.as_ref().unwrap().as_str() == our_bag {
+                            final_bag_containers.insert(holder.clone());
+                            let mut key_vectors = find_keys_for_value(&luggage_rules_map, &holder);
+                            let mut index = 0;
+                                while(index < key_vectors.len()) {
+
+                                    let mut temp_key_vectors = find_keys_for_value(&luggage_rules_map, key_vectors[index]);
+                                    key_vectors.append(&mut temp_key_vectors.clone());
+                                    final_bag_containers.insert(key_vectors[index].to_string().clone());
+                                    
+                                   
+                                    index+=1;
+                                }
+                            
+                        }
+                    }
+                }
+
+                start+=1;
+            }
+        }
+    }
+
+    // println!("{:?}", final_bag_containers);
+
+    println!("{:?}", final_bag_containers.len());
+    
+
+    Ok(())
+}
+
+
+fn find_keys_for_value<'a>(map: &'a HashMap<String, Vec<String>>, value: &str) -> Vec<&'a String> {
+    let table = vec![value];
+
+    let mut res: Vec<&String> =   map.iter() .filter_map(|(key, values)|  if values.contains(&value.to_string()) { Some(key) } else { None }).collect();
+  
+    return res;
+}
+
+fn seventh_problem_second_part() -> io::Result<()> {
+    let file = File::open("./data/7.txt")?;
+    let reader = BufReader::new(file);
+
+    let mut luggage_rules:Vec<String> = vec![];
+    let mut index = 0;
+
+    let mut line_string:String = "".to_string();
+
+    // let re = Regex::new(r"(\w+ \w+) bags contain \d+ (\w+ \w+) bag.?,?.? ?[\d+]? ?(\w+ \w+)?").unwrap();
+    let re = Regex::new(r"(\w+ \w+) bags contain (.*)").unwrap();
+
+    let contained_bag_regex = Regex::new(r"(\d+ \w+ \w+) bag").unwrap();
+
+    let contained_bag_regex_with_separate_count_match = Regex::new(r"(\d+) (\w+ \w+)").unwrap();
+    let mut luggage_rules_map: HashMap<String, Vec<String>> = HashMap::new();
+
+    let mut final_bag_containers:HashSet<String> = HashSet::new();
+
+    
+
+    for line in reader.lines() {
+        let string:String = line?;
+        line_string = string.clone();
+        
+        let captures =  re.captures(&line_string);
+        luggage_rules.push(string.to_string());
+        let mut is_valid = true;
+
+      
+        let unwrapped_captures = &captures.unwrap();
+
+        let mut holder:String = "".to_string();
+        holder = unwrapped_captures.as_ref().unwrap().get(1).unwrap().as_str().to_string();
+        let second_string = unwrapped_captures.as_ref().unwrap().get(2).unwrap().as_str().to_string();
+        let mut start = 0;
+        let mut contained_bags_vector:Vec<String> = vec![];
+
+        while let Some (m) = contained_bag_regex.captures_from_pos (&second_string, start).unwrap() {
+            contained_bags_vector.push(m.get (1).unwrap().as_str().to_string());
+            start = m.get (0).unwrap().end(); // Or you can use `end` to avoid overlapping matches
+        }
+
+        luggage_rules_map.insert(holder, contained_bags_vector);
+        
+    }   
+    let our_bag = "shiny gold";
+    let mut total_count: Option<i32>= get_count_of_bags(&luggage_rules_map, "shiny gold".to_string());
+
+    println!("{:?}", total_count.unwrap());
+    
+
+    Ok(())
+}
+
+fn get_count_of_bags(luggage_rules_map: &HashMap<String, Vec<String>>, bag: String) -> Option<i32> {
+    let our_bag = bag.clone();
+    let mut total = 0;
+    let contained_bag_regex_with_separate_count_match = Regex::new(r"(\d+) (\w+ \w+)").unwrap();
+    let key_vectors: &mut Vec<String> = &mut luggage_rules_map.get(&our_bag).unwrap().clone();
+    
+
+    for i in 0..key_vectors.len() {
+        let bag_with_count = key_vectors[i].to_string().clone();
+        let captures = contained_bag_regex_with_separate_count_match.captures(&bag_with_count);
+        let unwrapped_captures = &captures.unwrap();
+        
+        if (unwrapped_captures.is_some()) {
+            let count = unwrapped_captures.as_ref().unwrap().get(1).unwrap().as_str().parse::<i32>().unwrap();
+            let bag = unwrapped_captures.as_ref().unwrap().get(2).unwrap().as_str();
+            let optional_count = get_count_of_bags(luggage_rules_map, bag.to_string());
+
+            if optional_count.is_some() {
+                total += count + count * optional_count.unwrap();
+            }
+        }
+        
+    }
+
+    return Some(total);
+}
+
+fn eight_problem_first_part() -> io::Result<()> {
+    let file = File::open("./data/8.txt")?;
+    let reader = BufReader::new(file);
+
+    let mut instructions:Vec<String> = vec![];
+    let mut index = 0;
+
+    let mut parsed_indexes:Vec<i32> = vec![];
+
+    for line in reader.lines() {
+        let string:&str = &line?;
+        instructions.push(string.to_string());
+    }
+    
+    let mut current_index =  0 as i32;
+
+    let mut accumulator = 0 as i32;
+
+    let instruction_regex = Regex::new(r"(nop|acc|jmp) (\+|-)(\d+)").unwrap();
+    
+    while (!parsed_indexes.contains(&current_index)) {
+
+        parsed_indexes.push(current_index);
+        let current_instruction = &instructions[current_index as usize];
+        // println!("{}", current_instruction);
+
+        let captures = instruction_regex.captures(current_instruction);
+        let unwrapped_captures = &captures.unwrap();        
+        
+        if (unwrapped_captures.is_some()) {
+            let count = unwrapped_captures.as_ref().unwrap().get(3).unwrap().as_str().parse::<i32>().unwrap();
+            let instruction = unwrapped_captures.as_ref().unwrap().get(1).unwrap().as_str();
+            let sign = unwrapped_captures.as_ref().unwrap().get(2).unwrap().as_str();
+
+            // println!("{:?} {} {}", count, instruction, sign);
+
+            if instruction == "jmp" {
+                if sign == "+" {
+                    current_index+=count;
+                } else {
+                    current_index-=count;
+                }
+            } else {
+            
+                if instruction == "acc" {
+                    if sign == "+" {
+                        accumulator+=count;
+                    } else {
+                        accumulator-=count;
+                    }
+                }
+            current_index+=1;
+            }
+
+            
+        }
+
+    }
+    println!("{}", accumulator);
+    Ok(())
 }
