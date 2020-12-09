@@ -29,8 +29,10 @@ fn main() {
     // seventh_problem_second_part();
 
     // eight_problem_first_part();
-    eight_problem_second_part();
+    // eight_problem_second_part();
 
+    // ninth_problem_first_part();
+    ninth_problem_second_part();
 
     let elapsed = now.elapsed();
     println!("Elapsed: {:?}", elapsed);
@@ -62,7 +64,7 @@ fn first_problem_first_part() -> io::Result<()> {
         for j in i+1..numbers_length {
             sum = numbers[i] as u32 + numbers[j] as u32;
             if sum == 2020 {
-                println!("Sum is {} {} {}",numbers[i], numbers[j], sum);
+                // println!("Sum is {} {} {}",numbers[i], numbers[j], sum);
                 product = numbers[i] as u32 * numbers[j] as u32;
                 break;
             }
@@ -99,7 +101,7 @@ fn first_problem_second_part() -> io::Result<()> {
             for k in j+1..numbers_length {
             sum = numbers[i] as u32 + numbers[j] as u32 + numbers[k] as u32;
             if sum == 2020 {
-                println!("Sum is {} {} {}, {}",numbers[i], numbers[j], numbers[k], sum);
+                // println!("Sum is {} {} {}, {}",numbers[i], numbers[j], numbers[k], sum);
                 product = numbers[i] as u32 * numbers[j] as u32 *  numbers[k] as u32;
                 break;
             }
@@ -402,7 +404,7 @@ fn fourth_problem_second_part() -> io::Result<()> {
             let pid = wrapped_captures.as_ref().unwrap().get(13).unwrap().as_str();
 
             if pid.chars().count() != 9 {
-                println!("{}", pid.chars().count());
+                // println!("{}", pid.chars().count());
                 is_valid = false;
             }
 
@@ -421,7 +423,7 @@ fn fourth_problem_second_part() -> io::Result<()> {
             }
 
             if is_valid {
-                println!("{},{},{},{}{},{},{},{}",byr,iyr,eyr,hgt_value,hgt_unit, ecl,pid, hcl );
+                // println!("{},{},{},{}{},{},{},{}",byr,iyr,eyr,hgt_value,hgt_unit, ecl,pid, hcl );
                 valid_passports +=1;
             }
             
@@ -485,8 +487,8 @@ fn fifth_problem_first_part()-> io::Result<()> {
             column_index_array = fifth_problem_get_row(passport_chars[i as usize], column_index_array);
         }
 
-        println!("{}", row_index_array[0]);
-        println!("{}", column_index_array[0]);
+        // println!("{}", row_index_array[0]);
+        // println!("{}", column_index_array[0]);
 
         let seat_id: u32 = row_index_array[0] * 8 + column_index_array[0];
 
@@ -540,7 +542,7 @@ fn fifth_problem_second_part()-> io::Result<()> {
             let current_value = seat_id_vector[i];
             let next_value = seat_id_vector[i+1];
             if next_value - current_value != 1 {
-                println!("{} {}", seat_id_vector[i], seat_id_vector[i+1]);
+                // println!("{} {}", seat_id_vector[i], seat_id_vector[i+1]);
                 my_seat = seat_id_vector[i+1] - 1;
                 break;
             }
@@ -915,11 +917,12 @@ fn eight_problem_first_part() -> io::Result<()> {
 }
 
 fn eight_problem_second_part() -> io::Result<()> {
-    let file = File::open("./data/test.txt")?;
+    let file = File::open("./data/8.txt")?;
     let reader = BufReader::new(file);
 
     let mut instructions:Vec<String> = vec![];
     let mut index = 0;
+    let mut accumulator = 0;
 
     let mut parsed_indexes:Vec<i32> = vec![];
 
@@ -939,8 +942,44 @@ fn eight_problem_second_part() -> io::Result<()> {
         instructions.push(string.to_string());
         index+=1;
     }
+
+    let mut is_infinite_loop = false;
+
+    while (!is_infinite_loop) {
+        for i in 0..nop_indexes.len() {
+            let mut modified_instruction_vector = instructions.to_vec();
+            modified_instruction_vector[jmp_indexes[i] as usize] = modified_instruction_vector[jmp_indexes[i] as usize].replace("nop", "jmp");
+            
+            let mut response = eight_problem_execute_instruction_cycle(modified_instruction_vector);
+            
+            if (response.0) {
+                accumulator += response.1;
+                is_infinite_loop = response.0;
+                break;
+            }
+        }
+
+        if (is_infinite_loop) {
+            break;
+        }
+
+        for i in 0..jmp_indexes.len() {
+            let mut modified_instruction_vector = instructions.to_vec();
+            modified_instruction_vector[jmp_indexes[i] as usize] = modified_instruction_vector[jmp_indexes[i] as usize].replace("jmp", "nop");
+            
+            let mut response = eight_problem_execute_instruction_cycle(modified_instruction_vector);
+            
+            
+            if (response.0) {
+                accumulator = response.1;
+                is_infinite_loop = response.0;
+                break;
+            }
+        }
+        
+    }
     
-    eight_problem_execute_instruction_cycle(instructions);
+    println!("{} {}", is_infinite_loop , accumulator);
 
     Ok(())
 }
@@ -957,13 +996,8 @@ fn eight_problem_execute_instruction_cycle(instructions:Vec<String>) -> (bool, i
 
     while (!parsed_indexes.contains(&current_index)) {
         
-        if current_index == (instructions.len() - 1) as i32 {
-            return (true, accumulator);
-        }
-
         parsed_indexes.push(current_index);
         let current_instruction = &instructions[current_index as usize];
-        // println!("{}", current_instruction);
 
         let captures = instruction_regex.captures(current_instruction);
         let unwrapped_captures = &captures.unwrap();        
@@ -973,7 +1007,19 @@ fn eight_problem_execute_instruction_cycle(instructions:Vec<String>) -> (bool, i
             let instruction = unwrapped_captures.as_ref().unwrap().get(1).unwrap().as_str();
             let sign = unwrapped_captures.as_ref().unwrap().get(2).unwrap().as_str();
 
-            // println!("{:?} {} {}", count, instruction, sign);
+            if current_index == (instructions.len() - 1) as i32 {
+                
+                if instruction == "acc" {
+
+                    if sign == "+" {
+                        accumulator+=count;
+                    } else {
+                        accumulator-=count;
+                    }
+                }
+                
+                return (true, accumulator);
+            }
 
             if instruction == "jmp" {
 
@@ -1000,7 +1046,134 @@ fn eight_problem_execute_instruction_cycle(instructions:Vec<String>) -> (bool, i
 
     }
 
-    println!("{}", accumulator);
-
     return (false, accumulator);
+}
+
+
+fn ninth_problem_first_part() -> io::Result<()> {
+    let file = File::open("./data/9.txt")?;
+    let reader = BufReader::new(file);
+
+    let mut preamble:Vec<i32> = vec![];
+    let preamble_length:usize = 25;
+    let mut index = 0;
+
+    let mut exceptional_number: i32 = 0;
+
+    for line in reader.lines() {
+        let string:&str = &line?;
+        preamble.push(string.to_string().parse::<i32>().unwrap());
+        
+        if index > preamble_length - 1 {
+            let modified_vector:Vec<i32> = preamble[index - preamble_length..index].to_vec();
+            let response = ninth_problem_check_if_number_sum_of_any_two_in_preamble(modified_vector, preamble[index]);
+
+            if (!response) {
+                exceptional_number = preamble[index];
+                break;
+            }
+        } 
+
+        index+=1;
+    }
+
+    println!("{}", exceptional_number);
+
+    Ok(())
+}
+
+fn ninth_problem_second_part() -> io::Result<()> {
+    let file = File::open("./data/9.txt")?;
+    let reader = BufReader::new(file);
+
+    let mut preamble:Vec<i32> = vec![];
+    let preamble_length:usize = 25;
+    let mut index = 0;
+
+    let mut exceptional_number: i32 = 0;
+    let mut exceptional_index: usize = 0;
+
+    for line in reader.lines() {
+        let string:&str = &line?;
+        preamble.push(string.to_string().parse::<i32>().unwrap());
+        
+        if index > preamble_length - 1 {
+            let modified_vector:Vec<i32> = preamble[index - preamble_length..index].to_vec();
+            let response = ninth_problem_check_if_number_sum_of_any_two_in_preamble(modified_vector, preamble[index]);
+
+            if (!response) {
+                exceptional_number = preamble[index];
+                exceptional_index = index;
+                break;
+            }
+        } 
+
+        index+=1;
+    }
+
+    println!("{} {}", exceptional_number, exceptional_index);
+    let mut is_sum_equal = false;
+
+    let mut range: (usize, usize) = (0, 0);
+
+    for i in 0..exceptional_index {
+        let mut sum: i32 = preamble[i];
+
+        for j in i+1..exceptional_index {
+            sum += preamble[j];
+            
+            if sum == exceptional_number {
+                range = (i, j);
+                is_sum_equal = true;
+                break;
+            }
+        }
+
+        if is_sum_equal {
+            break;
+        }
+    }
+
+    let mut smallest_number: i32 = 0;
+    let mut largest_number: i32 = 0;
+    for i in range.0..range.1+1 {
+
+        if (i == range.0) {
+            smallest_number = preamble[i];
+            largest_number = preamble[i];
+        }
+
+        if smallest_number > preamble[i] {
+            smallest_number = preamble[i];
+        }
+
+        if largest_number < preamble[i] {
+            largest_number = preamble[i];
+        }
+    }
+
+    println!("{:?} {} + {} = {} {}", range, smallest_number, largest_number, smallest_number + largest_number, exceptional_number);
+
+    Ok(())
+}
+
+fn ninth_problem_check_if_number_sum_of_any_two_in_preamble(preamble: Vec<i32>, number: i32) -> bool {
+    let mut is_equal = false;
+    
+    for i in 0..preamble.len() {
+        
+        for j in i+1..preamble.len() {
+
+            if i!=j &&  preamble[i]+preamble[j] == number {
+                is_equal = true;
+                break;
+            }
+        }
+
+        if (is_equal) {
+            break;
+        }
+    }
+
+    return is_equal;
 }
