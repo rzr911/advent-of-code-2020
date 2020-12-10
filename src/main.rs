@@ -32,7 +32,10 @@ fn main() {
     // eight_problem_second_part();
 
     // ninth_problem_first_part();
-    ninth_problem_second_part();
+    // ninth_problem_second_part();
+
+    // tenth_problem_first_part();
+    tenth_problem_second_part();
 
     let elapsed = now.elapsed();
     println!("Elapsed: {:?}", elapsed);
@@ -1111,7 +1114,6 @@ fn ninth_problem_second_part() -> io::Result<()> {
         index+=1;
     }
 
-    println!("{} {}", exceptional_number, exceptional_index);
     let mut is_sum_equal = false;
 
     let mut range: (usize, usize) = (0, 0);
@@ -1176,4 +1178,98 @@ fn ninth_problem_check_if_number_sum_of_any_two_in_preamble(preamble: Vec<i32>, 
     }
 
     return is_equal;
+}
+
+fn tenth_problem_first_part() -> io::Result<()> {
+    let file = File::open("./data/10.txt")?;
+    let reader = BufReader::new(file);
+
+    let mut adapters:Vec<i32> = vec![];
+    let mut index = 0;
+
+    let mut count_of_1_jolt_difference = 0;
+    let mut count_of_3_jolt_difference = 0;
+
+    for line in reader.lines() {
+        let string:&str = &line?;
+        adapters.push(string.to_string().parse::<i32>().unwrap());
+        
+        index+=1;
+    }
+
+
+    adapters.push(0);
+    adapters.sort();
+    adapters.push(adapters[adapters.len()-1] + 3);
+
+    println!("{:?}", adapters);
+
+    let mut prev_jolt = 0;
+    
+
+    for i in  0..adapters.len() {
+
+        if (i != 0) {
+            prev_jolt = adapters[i-1];
+            let current_jolt = adapters[i];
+            let difference = current_jolt - prev_jolt;
+            if difference == 1 {
+                count_of_1_jolt_difference+=1;
+            } else if difference == 3 {
+                count_of_3_jolt_difference+=1;
+            }
+
+            // println!("{} {} {}", current_jolt, prev_jolt, difference)
+        }
+    }
+
+    println!("{} {} {}", count_of_1_jolt_difference , count_of_3_jolt_difference, count_of_1_jolt_difference * count_of_3_jolt_difference);
+    Ok(())
+}
+
+fn tenth_problem_second_part() -> io::Result<()> {
+    let file = File::open("./data/test.txt")?;
+    let reader = BufReader::new(file);
+
+    let mut adapters:Vec<i32> = vec![];
+    let mut index = 0;
+
+    let mut count_of_1_jolt_difference = 0;
+    let mut count_of_3_jolt_difference = 0;
+    let mut all_possible_combinations: HashSet<Vec<i32>> = HashSet::new();;
+
+    for line in reader.lines() {
+        let string:&str = &line?;
+        adapters.push(string.to_string().parse::<i32>().unwrap());
+        
+        index+=1;
+    }
+
+    adapters.push(0);
+    adapters.sort();
+    adapters.push(adapters[adapters.len()-1] + 3);
+
+    println!("{:?}", adapters);
+
+    let mut prev_jolt = 0;
+
+    tenth_problem_second_part_get_all_possible_combinations(adapters);
+    Ok(())
+}
+
+fn tenth_problem_second_part_get_all_possible_combinations(adapters: Vec<i32>) -> Vec<Vec<i32>> {
+    let mut all_possible_combinations:Vec<Vec<i32>> = vec![];
+
+    for i in 0..adapters.len() {
+
+        if (i < adapters.len() - 3 && adapters[i+3] - adapters[i] < 4) {
+            println!("Difference between i and i + 3 {} {}", adapters[i], adapters[i+3]);
+
+        } else if (i < adapters.len() - 2 && adapters[i+2] - adapters[i] < 3) {
+            println!("Difference between i and i + 2 {} {}", adapters[i], adapters[i+2]);
+        } 
+
+    }
+
+    return all_possible_combinations;
 }
