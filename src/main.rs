@@ -35,7 +35,9 @@ fn main() {
     // ninth_problem_second_part();
 
     // tenth_problem_first_part();
-    tenth_problem_second_part();
+    // tenth_problem_second_part();
+    
+    eleventh_problem_first_part();
 
     let elapsed = now.elapsed();
     println!("Elapsed: {:?}", elapsed);
@@ -1245,7 +1247,7 @@ fn tenth_problem_second_part() -> io::Result<()> {
         index+=1;
     }
 
-    adapters.push(0);
+    adapters.push(4);
     adapters.sort();
     adapters.push(adapters[adapters.len()-1] + 3);
 
@@ -1259,17 +1261,224 @@ fn tenth_problem_second_part() -> io::Result<()> {
 
 fn tenth_problem_second_part_get_all_possible_combinations(adapters: Vec<i32>) -> Vec<Vec<i32>> {
     let mut all_possible_combinations:Vec<Vec<i32>> = vec![];
+    let mut count:i32 = 1;
+    let mut considered_end_indices: HashSet<i32> = HashSet::new();
 
     for i in 0..adapters.len() {
 
-        if (i < adapters.len() - 3 && adapters[i+3] - adapters[i] < 4) {
-            println!("Difference between i and i + 3 {} {}", adapters[i], adapters[i+3]);
+        if (i < adapters.len() - 3 && adapters[i+3] - adapters[i] == 3) {
 
-        } else if (i < adapters.len() - 2 && adapters[i+2] - adapters[i] < 3) {
+            if (tenth_problem_check_if_index_lower_than_passed_index_exists(considered_end_indices.clone(), adapters[i] as i32)) {
+                count+=2;
+                println!("{} {} {}", count, adapters[i+3], adapters[i]);
+            } else {
+                count*=4;
+            }
+            considered_end_indices.insert(adapters[i+3]);
+
+        }
+        
+        if (i < adapters.len() - 3 && adapters[i+3] - adapters[i] == 3) {
+
+            if (tenth_problem_check_if_index_lower_than_passed_index_exists(considered_end_indices.clone(), adapters[i] as i32)) {
+                count+=2;
+                println!("{} {} {}", count, adapters[i+3], adapters[i]);
+            } else {
+                count*=4;
+            }
+            considered_end_indices.insert(adapters[i+3]);
+
+        } else if (i < adapters.len() - 2 && adapters[i+2] - adapters[i] < 4) {
             println!("Difference between i and i + 2 {} {}", adapters[i], adapters[i+2]);
+            
+            if (!considered_end_indices.contains(&adapters[i+2])) {
+                count*=2;
+
+                if (tenth_problem_check_if_index_lower_than_passed_index_exists(considered_end_indices.clone(), adapters[i] as i32)) {
+                    count-=1;
+                    println!("{} {} {}", count, adapters[i+2], adapters[i]);
+                }
+                considered_end_indices.insert(adapters[i+2]);
+                println!("{:?}", considered_end_indices);
+            }
         } 
 
     }
-
+    println!("{} ",count);
     return all_possible_combinations;
+}
+
+fn tenth_problem_check_if_index_lower_than_passed_index_exists(considered_end_indices: HashSet<i32>, index: i32) -> bool {
+    for i in &considered_end_indices {
+        println!("index check {}", index);
+        if index < *i {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+fn eleventh_problem_first_part() -> io::Result<()> {
+    let file = File::open("./data/11.txt")?;
+    let reader = BufReader::new(file);
+
+    let mut layout:Vec<Vec<char>> = vec![];
+    let mut index = 0;
+    let mut occupied_seat_count = 0;
+
+    for line in reader.lines() {
+        let string:&str = &line?;
+        let char_vec: Vec<char> = string.chars().collect();
+        layout.push(char_vec);
+    }
+    let mut is_modified = true;
+
+    while(is_modified) {
+        let res = eleventh_problem_first_part_apply_seat_rules(layout.clone());
+        is_modified = res.1;
+        layout = res.0;
+    }
+    
+
+
+    for i in 0..layout.len() {
+        for j in 0..layout[i].len() {
+            print!(" {}", layout[i][j]);
+            if layout[i][j] == '#' {
+                occupied_seat_count+=1;
+            }
+        }
+        
+    }
+    println!("{}", occupied_seat_count);
+    Ok(())
+}
+
+fn eleventh_problem_first_part_apply_seat_rules(layout: Vec<Vec<char>>) -> (Vec<Vec<char>>, bool) {
+    let mut modified_layout = layout.clone();
+    
+    let mut is_modified = false;
+
+
+    for i in 0..modified_layout.len() {
+        for j in 0..modified_layout[i].len() {
+            let adjacent_index_vector = eleventh_problem_first_part_get_adjacent_indices_based_on_current_index((i,j), modified_layout[i].len(), modified_layout.len());
+                
+            if layout[i][j] == 'L' {
+                let mut are_adjacent_seats_occupied = false;
+                for index_tuple in adjacent_index_vector {
+                    
+                    if layout[index_tuple.0][index_tuple.1] == '#' {
+                        are_adjacent_seats_occupied = true;
+                        
+                    }
+                }
+
+                if(!are_adjacent_seats_occupied) {
+                    modified_layout[i][j] = '#';
+                    is_modified = true;
+                }
+                
+            } else if layout[i][j] == '#' {
+                let mut occupied_seat_count = 0;
+
+                if (i==1 && j==8) {
+                    println!("{:?}", adjacent_index_vector);
+                }
+
+                for index_tuple in adjacent_index_vector {
+                    
+                    if layout[index_tuple.0][index_tuple.1] == '#' {
+                        occupied_seat_count+=1;
+                    }
+                }
+
+                if occupied_seat_count >= 4 {
+                    modified_layout[i][j] = 'L';
+                    is_modified = true;
+                }
+            }
+        }
+    }
+
+    return (modified_layout, is_modified);
+}
+
+fn eleventh_problem_first_part_get_adjacent_indices_based_on_current_index(current_index: (usize, usize), row_length: usize, column_length: usize) -> Vec<(usize, usize)> {
+
+    let mut adjacent_index_tuple_vector:Vec<(usize, usize)> = vec![];
+    let i = current_index.0;
+    let j = current_index.1;
+
+    
+    if (i == 0 && j==0) {
+
+        if (j+1 < row_length) {
+            adjacent_index_tuple_vector.push((i, j+1));
+        }
+
+        if (i+1 < column_length) {
+            adjacent_index_tuple_vector.push((i+1, j));
+        }
+
+        if i+1 < column_length && j+1 < row_length {
+            adjacent_index_tuple_vector.push((i+1, j+1));
+        }
+
+    } else if (i > 0 && j==0) {
+
+        adjacent_index_tuple_vector.push((i-1, j));
+        
+        if (j+1 < row_length) {
+            adjacent_index_tuple_vector.push((i-1, j+1));
+
+            if (i+1 < column_length) {
+                adjacent_index_tuple_vector.push((i+1, j+1));
+            }
+            adjacent_index_tuple_vector.push((i, j+1));
+        }
+
+        if (i+1 < column_length) {
+            adjacent_index_tuple_vector.push((i+1, j));
+        }
+
+    } else if (i == 0 && j > 0) {
+
+        adjacent_index_tuple_vector.push((i, j-1));
+
+        if (j+ 1 < row_length) {
+            adjacent_index_tuple_vector.push((i, j+1));
+        }
+
+        if (i+1 < column_length) {
+            adjacent_index_tuple_vector.push((i+1, j-1));
+            adjacent_index_tuple_vector.push((i+1, j));
+            
+            if (j+1 < row_length) {
+                adjacent_index_tuple_vector.push((i+1, j+1));
+            }
+        }
+
+    } else {
+        adjacent_index_tuple_vector.push((i-1, j-1));
+        adjacent_index_tuple_vector.push((i-1, j));
+        
+        if (j+1 < row_length) {
+            adjacent_index_tuple_vector.push((i-1, j+1));
+            adjacent_index_tuple_vector.push((i, j+1));
+        }
+
+        adjacent_index_tuple_vector.push((i, j-1));
+
+        if (i+1 < column_length ) {
+            adjacent_index_tuple_vector.push((i+1, j-1));
+            adjacent_index_tuple_vector.push((i+1, j));
+
+            if j+1 < row_length {
+                adjacent_index_tuple_vector.push((i+1, j+1));
+            }
+        }
+    }
+    return adjacent_index_tuple_vector;
 }
