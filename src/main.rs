@@ -37,7 +37,8 @@ fn main() {
     // tenth_problem_first_part();
     // tenth_problem_second_part();
     
-    eleventh_problem_first_part();
+    // eleventh_problem_first_part();
+    eleventh_problem_second_part();
 
     let elapsed = now.elapsed();
     println!("Elapsed: {:?}", elapsed);
@@ -1481,4 +1482,327 @@ fn eleventh_problem_first_part_get_adjacent_indices_based_on_current_index(curre
         }
     }
     return adjacent_index_tuple_vector;
+}
+
+
+fn eleventh_problem_second_part() -> io::Result<()> {
+    let file = File::open("./data/11.txt")?;
+    let reader = BufReader::new(file);
+
+    let mut layout:Vec<Vec<char>> = vec![];
+    let mut index = 0;
+    let mut occupied_seat_count = 0;
+
+    for line in reader.lines() {
+        let string:&str = &line?;
+        let char_vec: Vec<char> = string.chars().collect();
+        layout.push(char_vec);
+    }
+
+    let mut is_modified = true;
+
+    while(is_modified) {
+        let mut res = eleventh_problem_second_part_apply_seat_rules(layout.clone());
+        is_modified = res.1;
+        layout = res.0;
+    }
+
+    
+    for i in 0..layout.len() {
+        for j in 0..layout[i].len() {
+            print!(" {}", layout[i][j]);
+            if layout[i][j] == '#' {
+                occupied_seat_count+=1;
+            }
+        }
+        println!("");
+    }
+
+    println!("Occupied seat count {}", occupied_seat_count);
+    Ok(())
+}
+
+fn eleventh_problem_second_part_apply_seat_rules(layout: Vec<Vec<char>>) -> (Vec<Vec<char>>, bool) {
+    let mut modified_layout = layout.clone();
+    
+    let mut is_modified = false;
+
+
+    for i in 0..modified_layout.len() {
+
+        for j in 0..modified_layout[i].len() {
+                
+            if layout[i][j] == 'L' {
+                let mut are_nearest_seats_occupied = false;
+                
+                let are_nearest_seats_occupied = eleventh_problem_second_part_are_nearest_seats_occupied((i,j), layout.clone()).0;
+            
+                
+
+                if (!are_nearest_seats_occupied) {
+                    modified_layout[i][j] = '#';
+                    is_modified = true;
+                }
+                
+            } else if layout[i][j] == '#' {
+                let adjacent_index_vector = eleventh_problem_first_part_get_adjacent_indices_based_on_current_index((i,j), modified_layout[i].len(), modified_layout.len());
+            
+                let mut occupied_seat_count = eleventh_problem_second_part_are_nearest_seats_occupied((i,j), layout.clone()).1;
+
+    
+                if occupied_seat_count >= 5 {
+                    modified_layout[i][j] = 'L';
+                    is_modified = true;
+                }
+            }
+        }
+    }
+
+    return (modified_layout, is_modified);
+}
+
+fn eleventh_problem_second_part_are_nearest_seats_occupied(index_tuple:(usize, usize), layout: Vec<Vec<char>>) -> (bool,usize) {
+    let mut are_nearest_seats_occupied = false;
+    let mut count_of_visible_seats:usize = 0;
+
+    // check for nearest vertically down
+    for i in index_tuple.0+1..layout.len() {
+
+        
+       
+        if layout[i][index_tuple.1] == '#' {
+            are_nearest_seats_occupied = true;
+            
+            count_of_visible_seats+=1;
+            if(index_tuple.0==0 && index_tuple.1==3) {
+                println!("{}", are_nearest_seats_occupied);
+        
+                 println!("{} {}",  i,index_tuple.1);
+            }
+           
+        break;
+       } else if layout[i][index_tuple.1] == 'L' {
+
+        break;
+        }
+    }
+
+     // check for nearest vertically up
+    for i in (0..index_tuple.0).rev() {
+
+        if (index_tuple.0==9 && index_tuple.1==9) {
+            // println!("{} {} value {}",i, index_tuple.1, layout[i][index_tuple.1])
+        }
+
+        if layout[i][index_tuple.1] == '#' {
+            are_nearest_seats_occupied = true;
+            count_of_visible_seats+=1;
+
+            if (index_tuple.0==0 && index_tuple.1==3) {
+                println!(" {}", are_nearest_seats_occupied);
+                println!("{} {}",  i,index_tuple.1);
+            }
+            break;
+        }
+        else if layout[i][index_tuple.1] == 'L' {
+
+            break;
+        }
+        
+    }
+
+    // check for nearest horizontally right
+    for j in index_tuple.1+1..layout[index_tuple.0].len() {
+
+        if layout[index_tuple.0][j] == '#' {
+            are_nearest_seats_occupied = true;
+            count_of_visible_seats+=1;
+
+            if (index_tuple.0==0 && index_tuple.1==3) {
+                println!(" ay ay {}", are_nearest_seats_occupied);
+                println!("{} {}",  index_tuple.0,j);
+            }
+            break;
+        }
+
+        else if layout[index_tuple.0][j] == 'L' {
+            break;
+         }
+    }
+
+    // check for nearest horizontally left
+    for j in (0..index_tuple.1).rev() {
+
+        if (index_tuple.0==0 && index_tuple.1==9) {
+            // println!("{} {} value {}",index_tuple.0, j, layout[index_tuple.0][j])
+        }
+
+        if layout[index_tuple.0][j] == '#' {
+            are_nearest_seats_occupied = true;
+            count_of_visible_seats+=1;
+
+            if (index_tuple.0==0 && index_tuple.1==3) {
+                println!(" ay ay {}", are_nearest_seats_occupied);
+                println!("{} {}",  index_tuple.0,j);
+            }
+           
+        break;
+        } else if layout[index_tuple.0][j] == 'L' {
+
+        break;
+        }
+    }
+
+    // Upwards left
+    let mut i = index_tuple.0;
+    let mut j = index_tuple.1;
+
+    if (i != 0 && j!=0) {
+        i-=1;
+        j-=1;
+
+        while(i >= 0 && j >=0) {
+        
+            if (index_tuple.0==5 && index_tuple.1==4) {
+                // println!("{} {} value {}",i,j, layout[i][j])
+            }
+    
+            if layout[i][j] == '#' {
+                are_nearest_seats_occupied = true;
+                count_of_visible_seats+=1;
+                
+                if(index_tuple.0==0 && index_tuple.1==3) {
+                    println!("{}", are_nearest_seats_occupied);
+                    println!("{} {}",  i,j);
+                }
+
+                break;
+            } else if layout[i][j] == 'L' {
+
+                break;
+            }
+    
+            if (i == 0 || j == 0) {
+                break;
+            } 
+            i-=1;
+            j-=1;
+        }
+
+        let mut i = index_tuple.0 - 1;
+        let mut j = index_tuple.1 - 1;
+    }
+    
+    
+    // downwards left
+    i = index_tuple.0;
+    j = index_tuple.1;
+    
+    if (i != layout.len() - 1 && j!=0) {
+        i+=1;
+        j-=1;
+
+        while(i < layout.len() && j >=0) {
+
+            if (index_tuple.0==8 && index_tuple.1==5) {
+                // println!("{} {} value {}",i,j, layout[i][j])
+            }
+            
+            if layout[i][j] == '#' {
+                are_nearest_seats_occupied = true;
+                count_of_visible_seats+=1;
+                
+                if (index_tuple.0==0 && index_tuple.1==3) {
+                    println!("{}", are_nearest_seats_occupied);
+                    println!("{} {}",  i,j);
+                }
+
+                break;
+                // return are_nearest_seats_occupied;
+            } else if layout[i][j] == 'L' {
+                break;
+            }
+            if (j == 0) {
+                break;
+            } 
+    
+            i+=1;
+    
+            if (j == 0) {
+                break;
+            } 
+            j-=1;
+        }
+    }
+    
+    // downwards right
+    i = index_tuple.0;
+    j = index_tuple.1;
+
+    if (i != layout.len() - 1 && j!=layout[i].len()) {
+        i+=1;
+        j+=1;
+
+        while(i < layout.len() && j < layout[i].len()) {
+            
+            if (index_tuple.0==0 && index_tuple.1==0) {
+                // println!("{} {} value {}",i,j, layout[i][j])
+            }
+
+            if layout[i][j] == '#' {
+                are_nearest_seats_occupied = true;
+                count_of_visible_seats+=1;
+
+                if(index_tuple.0==0 && index_tuple.1==3) {
+                    println!("{}", are_nearest_seats_occupied);
+                    println!("{} {}",  i,j);
+                }
+                break;
+                // return are_nearest_seats_occupied;
+            } else if layout[i][j] == 'L' {
+
+                break;
+            }
+
+            i+=1;
+            j+=1;
+        }
+    }
+    
+    //upwards right
+
+    i = index_tuple.0;
+    j = index_tuple.1;
+
+    if (i!=0 && j!=layout[i].len()) {
+        i-=1;
+        j+=1;
+
+        while(i >= 0 && j < layout[i].len()) {
+
+            if layout[i][j] == '#' {
+                are_nearest_seats_occupied = true;
+                count_of_visible_seats+=1;
+
+                if (index_tuple.0==0 && index_tuple.1==3) {
+                    println!("{}", are_nearest_seats_occupied);
+                    println!("{} {}",  i,j);
+                }
+                break;
+                // return are_nearest_seats_occupied;
+            }  else if layout[i][j] == 'L' {
+
+                break;
+            }
+    
+            if (i == 0) {
+                break;
+            } 
+            i-=1;
+            j+=1;
+        }
+    }
+
+    return (are_nearest_seats_occupied, count_of_visible_seats);
+
 }
