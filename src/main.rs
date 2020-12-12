@@ -38,7 +38,9 @@ fn main() {
     // tenth_problem_second_part();
     
     // eleventh_problem_first_part();
-    eleventh_problem_second_part();
+    // eleventh_problem_second_part();
+
+    twelth_problem_first_part();
 
     let elapsed = now.elapsed();
     println!("Elapsed: {:?}", elapsed);
@@ -69,8 +71,8 @@ fn first_problem_first_part() -> io::Result<()> {
 
         for j in i+1..numbers_length {
             sum = numbers[i] as u32 + numbers[j] as u32;
+
             if sum == 2020 {
-                // println!("Sum is {} {} {}",numbers[i], numbers[j], sum);
                 product = numbers[i] as u32 * numbers[j] as u32;
                 break;
             }
@@ -106,13 +108,13 @@ fn first_problem_second_part() -> io::Result<()> {
         for j in i+1..numbers_length {
             for k in j+1..numbers_length {
             sum = numbers[i] as u32 + numbers[j] as u32 + numbers[k] as u32;
-            if sum == 2020 {
-                // println!("Sum is {} {} {}, {}",numbers[i], numbers[j], numbers[k], sum);
-                product = numbers[i] as u32 * numbers[j] as u32 *  numbers[k] as u32;
-                break;
+
+                if sum == 2020 {
+                    product = numbers[i] as u32 * numbers[j] as u32 *  numbers[k] as u32;
+                    break;
+                }
             }
         }
-    }
     }
     println!("Question 1a {}", product);
     Ok(())
@@ -137,7 +139,7 @@ fn second_problem_first_part() -> io::Result<()> {
         let captures =  re.captures(string);
         let wrapped_captures = &captures.unwrap();
 
-        if (wrapped_captures.is_some()) {
+        if wrapped_captures.is_some() {
             lower_limit = wrapped_captures.as_ref().unwrap().get(1).unwrap().as_str().parse::<u32>().unwrap();
             upper_limit = wrapped_captures.as_ref().unwrap().get(2).unwrap().as_str().parse::<u32>().unwrap();
 
@@ -145,6 +147,7 @@ fn second_problem_first_part() -> io::Result<()> {
             password_string = wrapped_captures.as_ref().unwrap().get(4).unwrap().as_str();
 
             let c = password_string.matches(eligible_character).count();
+
             if c as u32 >= lower_limit && c as u32 <= upper_limit {
                 total_valid_passwords+=1;
             }
@@ -174,7 +177,7 @@ fn second_problem_second_part() -> io::Result<()> {
         let captures =  re.captures(string);
         let wrapped_captures = &captures.unwrap();
         
-        if (wrapped_captures.is_some()) {
+        if wrapped_captures.is_some() {
             lower_index = wrapped_captures.as_ref().unwrap().get(1).unwrap().as_str().parse::<u32>().unwrap();
             upper_index = wrapped_captures.as_ref().unwrap().get(2).unwrap().as_str().parse::<u32>().unwrap();
 
@@ -183,12 +186,12 @@ fn second_problem_second_part() -> io::Result<()> {
 
             let password_string_vector: Vec<char> = password_string.chars().collect();
 
-            if (password_string_vector.get(lower_index as usize -1) == Some(&eligible_character.chars().nth(0).unwrap())) {
+            if password_string_vector.get(lower_index as usize -1) == Some(&eligible_character.chars().nth(0).unwrap()) {
                 is_valid = !is_valid;
             }
             
 
-            if (password_string_vector.get(upper_index as usize -1) == Some(&eligible_character.chars().nth(0).unwrap())) {
+            if password_string_vector.get(upper_index as usize -1) == Some(&eligible_character.chars().nth(0).unwrap()) {
                 is_valid = !is_valid;
             }
 
@@ -198,10 +201,6 @@ fn second_problem_second_part() -> io::Result<()> {
             }
         }
         
-        // for cap in re.captures_iter(string) {
-        
-            
-        // }
     }
     println!("{} ", total_valid_passwords);
     Ok(())
@@ -218,6 +217,7 @@ fn third_problem_first_part() -> io::Result<()> {
 
     for line in reader.lines() {
         let mut second_array = vec![];
+
         for c in line.expect("lines failed").chars() {
             
             second_array.push(c);
@@ -230,10 +230,12 @@ fn third_problem_first_part() -> io::Result<()> {
     let mut right_value = 3;
 
     for i in 0..array.len() {
+
         if second_index > array[i].len() -1 {
             let mut difference = second_index - array[i].len();
             second_index = difference;
         }
+
         if array[i][second_index] == '#'{
             number_of_trees+=1;
         }
@@ -260,6 +262,7 @@ fn third_problem_second_part() -> io::Result<()> {
         for c in line.expect("lines failed").chars() {
             location_line.push(c);
         }
+
         location_graph.push(location_line);
     }   
 
@@ -313,7 +316,7 @@ fn third_problem_second_part() -> io::Result<()> {
             if location_graph[down_index][right_index] == '#'{
                 number_of_trees+=1;
             }
-            // println!("{} {} {}", down_index, right_index, location_graph[down_index][right_index]);
+           
             right_index += right_value;
             down_index += down_value;
 
@@ -399,6 +402,7 @@ fn fourth_problem_second_part() -> io::Result<()> {
         let wrapped_captures = &captures.unwrap();
         
         if (wrapped_captures.is_some()) {
+
             let byr = wrapped_captures.as_ref().unwrap().get(2).unwrap().as_str().parse::<i32>().unwrap();
             let iyr = wrapped_captures.as_ref().unwrap().get(4).unwrap().as_str().parse::<i32>().unwrap();
             let eyr = wrapped_captures.as_ref().unwrap().get(6).unwrap().as_str().parse::<i32>().unwrap();
@@ -410,17 +414,16 @@ fn fourth_problem_second_part() -> io::Result<()> {
             let pid = wrapped_captures.as_ref().unwrap().get(13).unwrap().as_str();
 
             if pid.chars().count() != 9 {
-                // println!("{}", pid.chars().count());
                 is_valid = false;
             }
 
             let hcl = wrapped_captures.as_ref().unwrap().get(15).unwrap().as_str();
 
-            if !(fourth_problem_is_height_valid(hgt_value, hgt_unit)){
+            if !fourth_problem_is_height_valid(hgt_value, hgt_unit) {
                 is_valid = false;
             }
 
-            if !(if_string_in_vector(ecl, &valid_ecl_values)) {
+            if !if_string_in_vector(ecl, &valid_ecl_values) {
                 is_valid = false;
             }
 
@@ -429,7 +432,6 @@ fn fourth_problem_second_part() -> io::Result<()> {
             }
 
             if is_valid {
-                // println!("{},{},{},{}{},{},{},{}",byr,iyr,eyr,hgt_value,hgt_unit, ecl,pid, hcl );
                 valid_passports +=1;
             }
             
@@ -482,6 +484,7 @@ fn fifth_problem_first_part()-> io::Result<()> {
     for line in reader.lines() {
         row_index_array = [0, range];
         column_index_array = [0, row_length];
+
         let passport:&str = &line?;
         let passport_chars: Vec<char> = passport.chars().collect();
 
@@ -493,8 +496,6 @@ fn fifth_problem_first_part()-> io::Result<()> {
             column_index_array = fifth_problem_get_row(passport_chars[i as usize], column_index_array);
         }
 
-        // println!("{}", row_index_array[0]);
-        // println!("{}", column_index_array[0]);
 
         let seat_id: u32 = row_index_array[0] * 8 + column_index_array[0];
 
@@ -544,11 +545,13 @@ fn fifth_problem_second_part()-> io::Result<()> {
     let mut my_seat = 0;
 
     for i in 0..seat_id_vector.len() {
+
         if i+1 < seat_id_vector.len() {
+
             let current_value = seat_id_vector[i];
             let next_value = seat_id_vector[i+1];
+
             if next_value - current_value != 1 {
-                // println!("{} {}", seat_id_vector[i], seat_id_vector[i+1]);
                 my_seat = seat_id_vector[i+1] - 1;
                 break;
             }
@@ -743,7 +746,7 @@ fn seventh_problem_first_part() -> io::Result<()> {
                 let mut key_vectors = find_keys_for_value(&luggage_rules_map, &holder);
                 let mut index = 0;
 
-                    while(index < key_vectors.len()) {
+                    while index < key_vectors.len() {
 
                         let mut temp_key_vectors = find_keys_for_value(&luggage_rules_map, key_vectors[index]);
                         key_vectors.append(&mut temp_key_vectors.clone());
@@ -758,7 +761,7 @@ fn seventh_problem_first_part() -> io::Result<()> {
             start = m.get (0).unwrap().end(); // Or you can use `end` to avoid overlapping matches
         }
 
-        if (unwrapped_captures.is_some()) {
+        if unwrapped_captures.is_some() {
             let contained_bags = unwrapped_captures.as_ref().unwrap().iter();
             let mut start = 0;
             let mut contained_bags_vector:Vec<String> = vec![];
@@ -772,12 +775,13 @@ fn seventh_problem_first_part() -> io::Result<()> {
                         holder = bag.as_ref().unwrap().as_str().to_string();
                     }
 
-                    if (start > 1) {
+                    if start > 1 {
                         
                         if bag.as_ref().unwrap().as_str() == our_bag {
                             final_bag_containers.insert(holder.clone());
                             let mut key_vectors = find_keys_for_value(&luggage_rules_map, &holder);
                             let mut index = 0;
+
                                 while(index < key_vectors.len()) {
 
                                     let mut temp_key_vectors = find_keys_for_value(&luggage_rules_map, key_vectors[index]);
@@ -881,7 +885,7 @@ fn get_count_of_bags(luggage_rules_map: &HashMap<String, Vec<String>>, bag: Stri
         let captures = contained_bag_regex_with_separate_count_match.captures(&bag_with_count);
         let unwrapped_captures = &captures.unwrap();
         
-        if (unwrapped_captures.is_some()) {
+        if unwrapped_captures.is_some() {
             let count = unwrapped_captures.as_ref().unwrap().get(1).unwrap().as_str().parse::<i32>().unwrap();
             let bag = unwrapped_captures.as_ref().unwrap().get(2).unwrap().as_str();
             let optional_count = get_count_of_bags(luggage_rules_map, bag.to_string());
@@ -951,21 +955,22 @@ fn eight_problem_second_part() -> io::Result<()> {
 
     let mut is_infinite_loop = false;
 
-    while (!is_infinite_loop) {
+    while !is_infinite_loop {
+
         for i in 0..nop_indexes.len() {
             let mut modified_instruction_vector = instructions.to_vec();
             modified_instruction_vector[jmp_indexes[i] as usize] = modified_instruction_vector[jmp_indexes[i] as usize].replace("nop", "jmp");
             
             let mut response = eight_problem_execute_instruction_cycle(modified_instruction_vector);
             
-            if (response.0) {
+            if response.0 {
                 accumulator += response.1;
                 is_infinite_loop = response.0;
                 break;
             }
         }
 
-        if (is_infinite_loop) {
+        if is_infinite_loop {
             break;
         }
 
@@ -976,7 +981,7 @@ fn eight_problem_second_part() -> io::Result<()> {
             let mut response = eight_problem_execute_instruction_cycle(modified_instruction_vector);
             
             
-            if (response.0) {
+            if response.0 {
                 accumulator = response.1;
                 is_infinite_loop = response.0;
                 break;
@@ -1000,7 +1005,7 @@ fn eight_problem_execute_instruction_cycle(instructions:Vec<String>) -> (bool, i
 
     let mut parsed_indexes:Vec<i32> = vec![];
 
-    while (!parsed_indexes.contains(&current_index)) {
+    while !parsed_indexes.contains(&current_index) {
         
         parsed_indexes.push(current_index);
         let current_instruction = &instructions[current_index as usize];
@@ -1008,7 +1013,7 @@ fn eight_problem_execute_instruction_cycle(instructions:Vec<String>) -> (bool, i
         let captures = instruction_regex.captures(current_instruction);
         let unwrapped_captures = &captures.unwrap();        
         
-        if (unwrapped_captures.is_some()) {
+        if unwrapped_captures.is_some() {
             let count = unwrapped_captures.as_ref().unwrap().get(3).unwrap().as_str().parse::<i32>().unwrap();
             let instruction = unwrapped_captures.as_ref().unwrap().get(1).unwrap().as_str();
             let sign = unwrapped_captures.as_ref().unwrap().get(2).unwrap().as_str();
@@ -1074,7 +1079,7 @@ fn ninth_problem_first_part() -> io::Result<()> {
             let modified_vector:Vec<i32> = preamble[index - preamble_length..index].to_vec();
             let response = ninth_problem_check_if_number_sum_of_any_two_in_preamble(modified_vector, preamble[index]);
 
-            if (!response) {
+            if !response {
                 exceptional_number = preamble[index];
                 break;
             }
@@ -1107,7 +1112,7 @@ fn ninth_problem_second_part() -> io::Result<()> {
             let modified_vector:Vec<i32> = preamble[index - preamble_length..index].to_vec();
             let response = ninth_problem_check_if_number_sum_of_any_two_in_preamble(modified_vector, preamble[index]);
 
-            if (!response) {
+            if !response {
                 exceptional_number = preamble[index];
                 exceptional_index = index;
                 break;
@@ -1141,9 +1146,10 @@ fn ninth_problem_second_part() -> io::Result<()> {
 
     let mut smallest_number: i32 = 0;
     let mut largest_number: i32 = 0;
+
     for i in range.0..range.1+1 {
 
-        if (i == range.0) {
+        if i == range.0 {
             smallest_number = preamble[i];
             largest_number = preamble[i];
         }
@@ -1175,7 +1181,7 @@ fn ninth_problem_check_if_number_sum_of_any_two_in_preamble(preamble: Vec<i32>, 
             }
         }
 
-        if (is_equal) {
+        if is_equal {
             break;
         }
     }
@@ -1212,7 +1218,7 @@ fn tenth_problem_first_part() -> io::Result<()> {
 
     for i in  0..adapters.len() {
 
-        if (i != 0) {
+        if i != 0 {
             prev_jolt = adapters[i-1];
             let current_jolt = adapters[i];
             let difference = current_jolt - prev_jolt;
@@ -1267,9 +1273,9 @@ fn tenth_problem_second_part_get_all_possible_combinations(adapters: Vec<i32>) -
 
     for i in 0..adapters.len() {
 
-        if (i < adapters.len() - 3 && adapters[i+3] - adapters[i] == 3) {
+        if i < adapters.len() - 3 && adapters[i+3] - adapters[i] == 3 {
 
-            if (tenth_problem_check_if_index_lower_than_passed_index_exists(considered_end_indices.clone(), adapters[i] as i32)) {
+            if tenth_problem_check_if_index_lower_than_passed_index_exists(considered_end_indices.clone(), adapters[i] as i32) {
                 count+=2;
                 println!("{} {} {}", count, adapters[i+3], adapters[i]);
             } else {
@@ -1279,9 +1285,9 @@ fn tenth_problem_second_part_get_all_possible_combinations(adapters: Vec<i32>) -
 
         }
         
-        if (i < adapters.len() - 3 && adapters[i+3] - adapters[i] == 3) {
+        if i < adapters.len() - 3 && adapters[i+3] - adapters[i] == 3 {
 
-            if (tenth_problem_check_if_index_lower_than_passed_index_exists(considered_end_indices.clone(), adapters[i] as i32)) {
+            if tenth_problem_check_if_index_lower_than_passed_index_exists(considered_end_indices.clone(), adapters[i] as i32) {
                 count+=2;
                 println!("{} {} {}", count, adapters[i+3], adapters[i]);
             } else {
@@ -1292,10 +1298,10 @@ fn tenth_problem_second_part_get_all_possible_combinations(adapters: Vec<i32>) -
         } else if (i < adapters.len() - 2 && adapters[i+2] - adapters[i] < 4) {
             println!("Difference between i and i + 2 {} {}", adapters[i], adapters[i+2]);
             
-            if (!considered_end_indices.contains(&adapters[i+2])) {
+            if !considered_end_indices.contains(&adapters[i+2]) {
                 count*=2;
 
-                if (tenth_problem_check_if_index_lower_than_passed_index_exists(considered_end_indices.clone(), adapters[i] as i32)) {
+                if tenth_problem_check_if_index_lower_than_passed_index_exists(considered_end_indices.clone(), adapters[i] as i32) {
                     count-=1;
                     println!("{} {} {}", count, adapters[i+2], adapters[i]);
                 }
@@ -1310,8 +1316,9 @@ fn tenth_problem_second_part_get_all_possible_combinations(adapters: Vec<i32>) -
 }
 
 fn tenth_problem_check_if_index_lower_than_passed_index_exists(considered_end_indices: HashSet<i32>, index: i32) -> bool {
+
     for i in &considered_end_indices {
-        println!("index check {}", index);
+
         if index < *i {
             return true;
         }
@@ -1335,7 +1342,7 @@ fn eleventh_problem_first_part() -> io::Result<()> {
     }
     let mut is_modified = true;
 
-    while(is_modified) {
+    while is_modified {
         let res = eleventh_problem_first_part_apply_seat_rules(layout.clone());
         is_modified = res.1;
         layout = res.0;
@@ -1345,7 +1352,7 @@ fn eleventh_problem_first_part() -> io::Result<()> {
 
     for i in 0..layout.len() {
         for j in 0..layout[i].len() {
-            print!(" {}", layout[i][j]);
+
             if layout[i][j] == '#' {
                 occupied_seat_count+=1;
             }
@@ -1368,6 +1375,7 @@ fn eleventh_problem_first_part_apply_seat_rules(layout: Vec<Vec<char>>) -> (Vec<
                 
             if layout[i][j] == 'L' {
                 let mut are_adjacent_seats_occupied = false;
+
                 for index_tuple in adjacent_index_vector {
                     
                     if layout[index_tuple.0][index_tuple.1] == '#' {
@@ -1376,7 +1384,7 @@ fn eleventh_problem_first_part_apply_seat_rules(layout: Vec<Vec<char>>) -> (Vec<
                     }
                 }
 
-                if(!are_adjacent_seats_occupied) {
+                if !are_adjacent_seats_occupied {
                     modified_layout[i][j] = '#';
                     is_modified = true;
                 }
@@ -1384,7 +1392,7 @@ fn eleventh_problem_first_part_apply_seat_rules(layout: Vec<Vec<char>>) -> (Vec<
             } else if layout[i][j] == '#' {
                 let mut occupied_seat_count = 0;
 
-                if (i==1 && j==8) {
+                if i==1 && j==8 {
                     println!("{:?}", adjacent_index_vector);
                 }
 
@@ -1413,13 +1421,13 @@ fn eleventh_problem_first_part_get_adjacent_indices_based_on_current_index(curre
     let j = current_index.1;
 
     
-    if (i == 0 && j==0) {
+    if i == 0 && j==0 {
 
-        if (j+1 < row_length) {
+        if j+1 < row_length {
             adjacent_index_tuple_vector.push((i, j+1));
         }
 
-        if (i+1 < column_length) {
+        if i+1 < column_length {
             adjacent_index_tuple_vector.push((i+1, j));
         }
 
@@ -1427,36 +1435,36 @@ fn eleventh_problem_first_part_get_adjacent_indices_based_on_current_index(curre
             adjacent_index_tuple_vector.push((i+1, j+1));
         }
 
-    } else if (i > 0 && j==0) {
+    } else if i > 0 && j==0 {
 
         adjacent_index_tuple_vector.push((i-1, j));
         
-        if (j+1 < row_length) {
+        if j+1 < row_length {
             adjacent_index_tuple_vector.push((i-1, j+1));
 
-            if (i+1 < column_length) {
+            if i+1 < column_length {
                 adjacent_index_tuple_vector.push((i+1, j+1));
             }
             adjacent_index_tuple_vector.push((i, j+1));
         }
 
-        if (i+1 < column_length) {
+        if i+1 < column_length {
             adjacent_index_tuple_vector.push((i+1, j));
         }
 
-    } else if (i == 0 && j > 0) {
+    } else if i == 0 && j > 0 {
 
         adjacent_index_tuple_vector.push((i, j-1));
 
-        if (j+ 1 < row_length) {
+        if j+ 1 < row_length {
             adjacent_index_tuple_vector.push((i, j+1));
         }
 
-        if (i+1 < column_length) {
+        if i+1 < column_length {
             adjacent_index_tuple_vector.push((i+1, j-1));
             adjacent_index_tuple_vector.push((i+1, j));
             
-            if (j+1 < row_length) {
+            if j+1 < row_length {
                 adjacent_index_tuple_vector.push((i+1, j+1));
             }
         }
@@ -1465,14 +1473,14 @@ fn eleventh_problem_first_part_get_adjacent_indices_based_on_current_index(curre
         adjacent_index_tuple_vector.push((i-1, j-1));
         adjacent_index_tuple_vector.push((i-1, j));
         
-        if (j+1 < row_length) {
+        if j+1 < row_length {
             adjacent_index_tuple_vector.push((i-1, j+1));
             adjacent_index_tuple_vector.push((i, j+1));
         }
 
         adjacent_index_tuple_vector.push((i, j-1));
 
-        if (i+1 < column_length ) {
+        if i+1 < column_length  {
             adjacent_index_tuple_vector.push((i+1, j-1));
             adjacent_index_tuple_vector.push((i+1, j));
 
@@ -1501,7 +1509,7 @@ fn eleventh_problem_second_part() -> io::Result<()> {
 
     let mut is_modified = true;
 
-    while(is_modified) {
+    while is_modified {
         let mut res = eleventh_problem_second_part_apply_seat_rules(layout.clone());
         is_modified = res.1;
         layout = res.0;
@@ -1509,8 +1517,9 @@ fn eleventh_problem_second_part() -> io::Result<()> {
 
     
     for i in 0..layout.len() {
+
         for j in 0..layout[i].len() {
-            print!(" {}", layout[i][j]);
+            
             if layout[i][j] == '#' {
                 occupied_seat_count+=1;
             }
@@ -1539,7 +1548,7 @@ fn eleventh_problem_second_part_apply_seat_rules(layout: Vec<Vec<char>>) -> (Vec
             
                 
 
-                if (!are_nearest_seats_occupied) {
+                if !are_nearest_seats_occupied {
                     modified_layout[i][j] = '#';
                     is_modified = true;
                 }
@@ -1574,7 +1583,7 @@ fn eleventh_problem_second_part_are_nearest_seats_occupied(index_tuple:(usize, u
             are_nearest_seats_occupied = true;
             
             count_of_visible_seats+=1;
-            if(index_tuple.0==0 && index_tuple.1==3) {
+            if index_tuple.0==0 && index_tuple.1==3 {
                 println!("{}", are_nearest_seats_occupied);
         
                  println!("{} {}",  i,index_tuple.1);
@@ -1590,7 +1599,7 @@ fn eleventh_problem_second_part_are_nearest_seats_occupied(index_tuple:(usize, u
      // check for nearest vertically up
     for i in (0..index_tuple.0).rev() {
 
-        if (index_tuple.0==9 && index_tuple.1==9) {
+        if index_tuple.0==9 && index_tuple.1==9 {
             // println!("{} {} value {}",i, index_tuple.1, layout[i][index_tuple.1])
         }
 
@@ -1598,7 +1607,7 @@ fn eleventh_problem_second_part_are_nearest_seats_occupied(index_tuple:(usize, u
             are_nearest_seats_occupied = true;
             count_of_visible_seats+=1;
 
-            if (index_tuple.0==0 && index_tuple.1==3) {
+            if index_tuple.0==0 && index_tuple.1==3 {
                 println!(" {}", are_nearest_seats_occupied);
                 println!("{} {}",  i,index_tuple.1);
             }
@@ -1618,7 +1627,7 @@ fn eleventh_problem_second_part_are_nearest_seats_occupied(index_tuple:(usize, u
             are_nearest_seats_occupied = true;
             count_of_visible_seats+=1;
 
-            if (index_tuple.0==0 && index_tuple.1==3) {
+            if index_tuple.0==0 && index_tuple.1==3 {
                 println!(" ay ay {}", are_nearest_seats_occupied);
                 println!("{} {}",  index_tuple.0,j);
             }
@@ -1633,7 +1642,7 @@ fn eleventh_problem_second_part_are_nearest_seats_occupied(index_tuple:(usize, u
     // check for nearest horizontally left
     for j in (0..index_tuple.1).rev() {
 
-        if (index_tuple.0==0 && index_tuple.1==9) {
+        if index_tuple.0==0 && index_tuple.1==9 {
             // println!("{} {} value {}",index_tuple.0, j, layout[index_tuple.0][j])
         }
 
@@ -1641,7 +1650,7 @@ fn eleventh_problem_second_part_are_nearest_seats_occupied(index_tuple:(usize, u
             are_nearest_seats_occupied = true;
             count_of_visible_seats+=1;
 
-            if (index_tuple.0==0 && index_tuple.1==3) {
+            if index_tuple.0==0 && index_tuple.1==3 {
                 println!(" ay ay {}", are_nearest_seats_occupied);
                 println!("{} {}",  index_tuple.0,j);
             }
@@ -1657,13 +1666,13 @@ fn eleventh_problem_second_part_are_nearest_seats_occupied(index_tuple:(usize, u
     let mut i = index_tuple.0;
     let mut j = index_tuple.1;
 
-    if (i != 0 && j!=0) {
+    if i != 0 && j!=0 {
         i-=1;
         j-=1;
 
-        while(i >= 0 && j >=0) {
+        while i >= 0 && j >=0 {
         
-            if (index_tuple.0==5 && index_tuple.1==4) {
+            if index_tuple.0==5 && index_tuple.1==4 {
                 // println!("{} {} value {}",i,j, layout[i][j])
             }
     
@@ -1671,7 +1680,7 @@ fn eleventh_problem_second_part_are_nearest_seats_occupied(index_tuple:(usize, u
                 are_nearest_seats_occupied = true;
                 count_of_visible_seats+=1;
                 
-                if(index_tuple.0==0 && index_tuple.1==3) {
+                if index_tuple.0==0 && index_tuple.1==3 {
                     println!("{}", are_nearest_seats_occupied);
                     println!("{} {}",  i,j);
                 }
@@ -1682,7 +1691,7 @@ fn eleventh_problem_second_part_are_nearest_seats_occupied(index_tuple:(usize, u
                 break;
             }
     
-            if (i == 0 || j == 0) {
+            if i == 0 || j == 0 {
                 break;
             } 
             i-=1;
@@ -1698,13 +1707,13 @@ fn eleventh_problem_second_part_are_nearest_seats_occupied(index_tuple:(usize, u
     i = index_tuple.0;
     j = index_tuple.1;
     
-    if (i != layout.len() - 1 && j!=0) {
+    if i != layout.len() - 1 && j!=0 {
         i+=1;
         j-=1;
 
-        while(i < layout.len() && j >=0) {
+        while i < layout.len() && j >=0 {
 
-            if (index_tuple.0==8 && index_tuple.1==5) {
+            if index_tuple.0==8 && index_tuple.1==5 {
                 // println!("{} {} value {}",i,j, layout[i][j])
             }
             
@@ -1712,23 +1721,22 @@ fn eleventh_problem_second_part_are_nearest_seats_occupied(index_tuple:(usize, u
                 are_nearest_seats_occupied = true;
                 count_of_visible_seats+=1;
                 
-                if (index_tuple.0==0 && index_tuple.1==3) {
+                if index_tuple.0==0 && index_tuple.1==3 {
                     println!("{}", are_nearest_seats_occupied);
                     println!("{} {}",  i,j);
                 }
 
                 break;
-                // return are_nearest_seats_occupied;
             } else if layout[i][j] == 'L' {
                 break;
             }
-            if (j == 0) {
+            if j == 0 {
                 break;
             } 
     
             i+=1;
     
-            if (j == 0) {
+            if j == 0 {
                 break;
             } 
             j-=1;
@@ -1739,28 +1747,23 @@ fn eleventh_problem_second_part_are_nearest_seats_occupied(index_tuple:(usize, u
     i = index_tuple.0;
     j = index_tuple.1;
 
-    if (i != layout.len() - 1 && j!=layout[i].len()) {
+    if i != layout.len() - 1 && j!=layout[i].len() {
         i+=1;
         j+=1;
 
-        while(i < layout.len() && j < layout[i].len()) {
+        while i < layout.len() && j < layout[i].len() {
             
-            if (index_tuple.0==0 && index_tuple.1==0) {
-                // println!("{} {} value {}",i,j, layout[i][j])
-            }
-
             if layout[i][j] == '#' {
                 are_nearest_seats_occupied = true;
                 count_of_visible_seats+=1;
 
-                if(index_tuple.0==0 && index_tuple.1==3) {
+                if index_tuple.0==0 && index_tuple.1==3 {
                     println!("{}", are_nearest_seats_occupied);
                     println!("{} {}",  i,j);
                 }
-                break;
-                // return are_nearest_seats_occupied;
-            } else if layout[i][j] == 'L' {
 
+                break;
+            } else if layout[i][j] == 'L' {
                 break;
             }
 
@@ -1774,17 +1777,17 @@ fn eleventh_problem_second_part_are_nearest_seats_occupied(index_tuple:(usize, u
     i = index_tuple.0;
     j = index_tuple.1;
 
-    if (i!=0 && j!=layout[i].len()) {
+    if i!=0 && j!=layout[i].len() {
         i-=1;
         j+=1;
 
-        while(i >= 0 && j < layout[i].len()) {
+        while i >= 0 && j < layout[i].len() {
 
             if layout[i][j] == '#' {
                 are_nearest_seats_occupied = true;
                 count_of_visible_seats+=1;
 
-                if (index_tuple.0==0 && index_tuple.1==3) {
+                if index_tuple.0==0 && index_tuple.1==3 {
                     println!("{}", are_nearest_seats_occupied);
                     println!("{} {}",  i,j);
                 }
@@ -1795,7 +1798,7 @@ fn eleventh_problem_second_part_are_nearest_seats_occupied(index_tuple:(usize, u
                 break;
             }
     
-            if (i == 0) {
+            if i == 0 {
                 break;
             } 
             i-=1;
@@ -1804,5 +1807,66 @@ fn eleventh_problem_second_part_are_nearest_seats_occupied(index_tuple:(usize, u
     }
 
     return (are_nearest_seats_occupied, count_of_visible_seats);
+
+}
+
+
+fn twelth_problem_first_part() ->  io::Result<()>{
+    let file = File::open("./data/test.txt")?;
+    let reader = BufReader::new(file);
+
+    let mut index = 0;
+    let mut occupied_seat_count = 0;
+
+    let location_coordinate = (0, 0);
+    let direction = 'E';
+
+    for line in reader.lines() {
+
+        let string:&str = &line?;
+
+        twelth_problem_first_part_parse_action(location_coordinate, direction, string);
+
+
+    }
+
+
+    Ok(())
+}
+
+fn twelth_problem_first_part_parse_action(mut location: (i32, i32), direction: char, action_string: &str) ->((i32,i32), char) {
+    
+    let re = Regex::new(r"(N|S|E|W|L|R|F)(\d+)").unwrap();
+    let captures =  re.captures(&action_string);
+
+    let unwrapped_captures = &captures.unwrap();
+    let action = unwrapped_captures.as_ref().unwrap().get(1).unwrap().as_str();
+    let value = unwrapped_captures.as_ref().unwrap().get(2).unwrap().as_str().to_string().parse::<i32>().unwrap();
+
+    if action == 'F'.to_string() {
+
+        if direction == 'E' {
+            location.0+=value;
+        } else if direction == 'W' {
+            location.0-=value;
+        } else if direction == 'N' {
+            location.1+=value;
+        } else if direction == 'S' {
+            location.1-=value;
+        }
+    } else if action == 'N'.to_string() {
+        if direction == 'E' {
+            location.0+=value;
+        } else if direction == 'W' {
+            location.0-=value;
+        } else if direction == 'N' {
+            location.1+=value;
+        } else if direction == 'S' {
+            location.1-=value;
+        }
+    }
+
+    println!("{:?}", location);
+    return (location, direction)
 
 }
