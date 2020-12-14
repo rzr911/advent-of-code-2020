@@ -1855,18 +1855,43 @@ fn twelth_problem_first_part_parse_action(mut location: (i32, i32), direction: c
             location.1-=value;
         }
     } else if action == 'N'.to_string() {
-        if direction == 'E' {
-            location.0+=value;
-        } else if direction == 'W' {
-            location.0-=value;
-        } else if direction == 'N' {
-            location.1+=value;
-        } else if direction == 'S' {
-            location.1-=value;
-        }
+        location.1+=value;
+    } else if action == 'S'.to_string() {
+        location.1-=value;
+    } else if action == 'W'.to_string() {
+        location.0-=value;
+    } else if action == 'E'.to_string() {
+        location.0+=value;
+    } else if action == 'R'.to_string() {
+
     }
 
     println!("{:?}", location);
     return (location, direction)
+
+}
+
+fn twelth_problem_first_part_get_direction(current_direction:char, rotation_direction:char, rotation_degree:i32) -> char {
+    let mut final_degree:i32 = 0;
+    let mut final_direction = 'E';
+    if rotation_degree/360 > 1 {
+        rotation_degree = rotation_degree - 360;
+    }
+    
+    if current_direction == 'E' {
+        final_degree = 0;
+    } else if current_direction == 'S' {
+        final_degree = 90;
+    } else if current_direction == 'W' {
+        final_degree = 180;
+    } else if current_direction == 'N' {
+        final_degree = 270;
+    }
+
+    final_degree+=rotation_degree;
+
+    if final_degree == 360 {
+        final_direction = 'E';
+    }
 
 }
