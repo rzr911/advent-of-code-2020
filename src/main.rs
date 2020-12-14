@@ -1812,29 +1812,34 @@ fn eleventh_problem_second_part_are_nearest_seats_occupied(index_tuple:(usize, u
 
 
 fn twelth_problem_first_part() ->  io::Result<()>{
-    let file = File::open("./data/test.txt")?;
+    let file = File::open("./data/12.txt")?;
     let reader = BufReader::new(file);
 
     let mut index = 0;
     let mut occupied_seat_count = 0;
 
-    let location_coordinate = (0, 0);
-    let direction = 'E';
+    let mut location_coordinate = (0, 0);
+    let mut direction = 'E';
+
+    let mut final_location:((i32, i32), char) = ((0,0), 'E');
 
     for line in reader.lines() {
 
         let string:&str = &line?;
 
-        twelth_problem_first_part_parse_action(location_coordinate, direction, string);
+        final_location = twelth_problem_first_part_parse_action(location_coordinate, direction, string);
 
-
+        location_coordinate = final_location.0;
+        direction = final_location.1;
     }
 
+    println!("{:?}", final_location);
+    println!("Manhattan distance {}", location_coordinate.0.abs() + location_coordinate.1.abs());
 
     Ok(())
 }
 
-fn twelth_problem_first_part_parse_action(mut location: (i32, i32), direction: char, action_string: &str) ->((i32,i32), char) {
+fn twelth_problem_first_part_parse_action(mut location: (i32, i32),mut direction: char, action_string: &str) ->((i32,i32), char) {
     
     let re = Regex::new(r"(N|S|E|W|L|R|F)(\d+)").unwrap();
     let captures =  re.captures(&action_string);
@@ -1843,7 +1848,13 @@ fn twelth_problem_first_part_parse_action(mut location: (i32, i32), direction: c
     let action = unwrapped_captures.as_ref().unwrap().get(1).unwrap().as_str();
     let value = unwrapped_captures.as_ref().unwrap().get(2).unwrap().as_str().to_string().parse::<i32>().unwrap();
 
-    if action == 'F'.to_string() {
+    let action_string = action.to_string();
+    let action_char_vector:Vec<char> = action.chars().collect();
+    let action_char = action_char_vector[0];
+
+
+
+    if action_string == 'F'.to_string() {
 
         if direction == 'E' {
             location.0+=value;
@@ -1854,19 +1865,18 @@ fn twelth_problem_first_part_parse_action(mut location: (i32, i32), direction: c
         } else if direction == 'S' {
             location.1-=value;
         }
-    } else if action == 'N'.to_string() {
+    } else if action_string == 'N'.to_string() {
         location.1+=value;
-    } else if action == 'S'.to_string() {
+    } else if action_string == 'S'.to_string() {
         location.1-=value;
-    } else if action == 'W'.to_string() {
+    } else if action_string == 'W'.to_string() {
         location.0-=value;
-    } else if action == 'E'.to_string() {
+    } else if action_string == 'E'.to_string() {
         location.0+=value;
-    } else if action == 'R'.to_string() {
+    } else {
+        direction = twelth_problem_first_part_get_direction(direction, action_char, value);
+    } 
 
-    }
-
-    println!("{:?}", location);
     return (location, direction)
 
 }
@@ -1874,24 +1884,43 @@ fn twelth_problem_first_part_parse_action(mut location: (i32, i32), direction: c
 fn twelth_problem_first_part_get_direction(current_direction:char, rotation_direction:char, rotation_degree:i32) -> char {
     let mut final_degree:i32 = 0;
     let mut final_direction = 'E';
-    if rotation_degree/360 > 1 {
-        rotation_degree = rotation_degree - 360;
+    
+    let mut rotation_degree_index = rotation_degree / 90;
+
+    if rotation_degree_index >= 4 {
+        rotation_degree_index = rotation_degree_index % 4;
     }
     
-    if current_direction == 'E' {
-        final_degree = 0;
-    } else if current_direction == 'S' {
-        final_degree = 90;
-    } else if current_direction == 'W' {
-        final_degree = 180;
-    } else if current_direction == 'N' {
-        final_degree = 270;
+    let  direction_vector = ['E', 'S', 'W', 'N'];
+
+    let mut current_direction_index = direction_vector.iter().position(|&r| r == current_direction).unwrap() as i32;
+
+    println!("Index {} {}", current_direction_index, rotation_degree_index);
+
+    let mut it = direction_vector.iter().cycle();
+    let mut final_direction_value = 'B';
+
+    while(final_direction_value != current_direction) {
+        final_direction_value = *it.next().unwrap();
+    }
+    
+    if rotation_direction == 'R' {
+
+        for i in 0..rotation_degree_index {
+            final_direction_value = *it.next().unwrap();
+        }
+
+    } else if rotation_direction == 'L' {
+
+        rotation_degree_index = 4 - rotation_degree_index;
+
+        for i in 0..rotation_degree_index {
+            final_direction_value = *it.next().unwrap();
+        }
     }
 
-    final_degree+=rotation_degree;
-
-    if final_degree == 360 {
-        final_direction = 'E';
-    }
+    println!("Inital direction {} Final direction {}",current_direction, final_direction_value);
+    return final_direction_value;
+    
 
 }
