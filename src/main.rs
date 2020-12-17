@@ -40,7 +40,9 @@ fn main() {
     // eleventh_problem_first_part();
     // eleventh_problem_second_part();
 
-    twelth_problem_first_part();
+    // twelth_problem_first_part();
+
+    twelth_problem_second_part();
 
     let elapsed = now.elapsed();
     println!("Elapsed: {:?}", elapsed);
@@ -1919,8 +1921,78 @@ fn twelth_problem_first_part_get_direction(current_direction:char, rotation_dire
         }
     }
 
-    println!("Inital direction {} Final direction {}",current_direction, final_direction_value);
+    // println!("Inital direction {} Final direction {}",current_direction, final_direction_value);
     return final_direction_value;
     
 
+}
+
+fn twelth_problem_second_part() ->  io::Result<()>{
+    let file = File::open("./data/test.txt")?;
+    let reader = BufReader::new(file);
+
+    let mut index = 0;
+    let mut occupied_seat_count = 0;
+
+    let mut ship_coordinate = (0, 0);
+    let mut waypoint_coordinate = (10, 1);
+    let mut direction = 'E';
+
+    let mut final_location_tuple:(((i32, i32),(i32, i32)), char) = (((0,0),(10,1)), 'E');
+
+    for line in reader.lines() {
+
+        let string:&str = &line?;
+
+        final_location_tuple = twelth_problem_second_part_parse_action(ship_coordinate, waypoint_coordinate, direction, string);
+
+        ship_coordinate = final_location_tuple.0.0;
+        waypoint_coordinate = final_location_tuple.0.1;
+        direction = final_location_tuple.1;
+    }
+
+    println!("{:?}", final_location_tuple);
+    println!("Manhattan distance {}", ship_coordinate.0.abs() + ship_coordinate.1.abs());
+
+    Ok(())
+}
+
+fn twelth_problem_second_part_parse_action(mut ship_coordinate: (i32, i32), mut waypoint_coordinate: (i32, i32),mut direction: char, action_string: &str) ->(((i32,i32),(i32,i32)), char) {
+    
+    let re = Regex::new(r"(N|S|E|W|L|R|F)(\d+)").unwrap();
+    let captures =  re.captures(&action_string);
+
+    let unwrapped_captures = &captures.unwrap();
+    let action = unwrapped_captures.as_ref().unwrap().get(1).unwrap().as_str();
+    let value = unwrapped_captures.as_ref().unwrap().get(2).unwrap().as_str().to_string().parse::<i32>().unwrap();
+
+    let action_string = action.to_string();
+    let action_char_vector:Vec<char> = action.chars().collect();
+    let action_char = action_char_vector[0];
+
+
+    if action_string == 'F'.to_string() {
+
+        if direction == 'E' {
+            ship_coordinate.0+=value;
+        } else if direction == 'W' {
+            ship_coordinate.0-=value;
+        } else if direction == 'N' {
+            ship_coordinate.1+=value;
+        } else if direction == 'S' {
+            ship_coordinate.1-=value;
+        }
+    } else if action_string == 'N'.to_string() {
+        waypoint_coordinate.1+=value;
+    } else if action_string == 'S'.to_string() {
+        waypoint_coordinate.1-=value;
+    } else if action_string == 'W'.to_string() {
+        waypoint_coordinate.0-=value;
+    } else if action_string == 'E'.to_string() {
+        waypoint_coordinate.0+=value;
+    } else {
+        direction = twelth_problem_first_part_get_direction(direction, action_char, value);
+    } 
+
+    return ((ship_coordinate, waypoint_coordinate), direction)
 }
