@@ -42,7 +42,8 @@ fn main() {
 
     // twelth_problem_first_part();
 
-    twelth_problem_second_part();
+    // twelth_problem_second_part();
+    thirteenth_problem_first_part();
 
     let elapsed = now.elapsed();
     println!("Elapsed: {:?}", elapsed);
@@ -1928,7 +1929,7 @@ fn twelth_problem_first_part_get_direction(current_direction:char, rotation_dire
 }
 
 fn twelth_problem_second_part() ->  io::Result<()>{
-    let file = File::open("./data/test.txt")?;
+    let file = File::open("./data/12.txt")?;
     let reader = BufReader::new(file);
 
     let mut index = 0;
@@ -1973,15 +1974,8 @@ fn twelth_problem_second_part_parse_action(mut ship_coordinate: (i32, i32), mut 
 
     if action_string == 'F'.to_string() {
 
-        if direction == 'E' {
-            ship_coordinate.0+=value;
-        } else if direction == 'W' {
-            ship_coordinate.0-=value;
-        } else if direction == 'N' {
-            ship_coordinate.1+=value;
-        } else if direction == 'S' {
-            ship_coordinate.1-=value;
-        }
+        ship_coordinate = twelth_problem_second_part_move_ship_coordinate_forwards_to_waypoint_coordinate(ship_coordinate, waypoint_coordinate, value);
+        
     } else if action_string == 'N'.to_string() {
         waypoint_coordinate.1+=value;
     } else if action_string == 'S'.to_string() {
@@ -1991,8 +1985,192 @@ fn twelth_problem_second_part_parse_action(mut ship_coordinate: (i32, i32), mut 
     } else if action_string == 'E'.to_string() {
         waypoint_coordinate.0+=value;
     } else {
-        direction = twelth_problem_first_part_get_direction(direction, action_char, value);
+        waypoint_coordinate = twelth_problem_second_part_rotate_waypoint(waypoint_coordinate, action_char, value);
     } 
 
+    println!("Waypoint {:?} Ship {:?}", waypoint_coordinate, ship_coordinate);
     return ((ship_coordinate, waypoint_coordinate), direction)
+}
+
+fn twelth_problem_second_part_move_ship_coordinate_forwards_to_waypoint_coordinate(mut ship_coordinate: (i32, i32), mut waypoint_coordinate: (i32, i32), value: i32) -> (i32, i32) {
+    let mut coordinates_to_be_updated = (0, 0);
+    coordinates_to_be_updated.0 = waypoint_coordinate.0.abs() * value;
+    coordinates_to_be_updated.1 = waypoint_coordinate.1.abs() * value;
+
+    if waypoint_coordinate.0 > 0 {
+        ship_coordinate.0 += coordinates_to_be_updated.0;
+    } else {
+        ship_coordinate.0 -= coordinates_to_be_updated.0;
+    }
+
+
+    if waypoint_coordinate.1 > 0 {
+        ship_coordinate.1 += coordinates_to_be_updated.1;
+    } else {
+        ship_coordinate.1 -= coordinates_to_be_updated.1;
+    }   
+
+
+    return ship_coordinate;
+}
+
+fn twelth_problem_second_part_rotate_waypoint(mut waypoint_coordinate: (i32, i32), rotation_direction:char, rotation_degree:i32) -> (i32, i32) {
+    let mut rotation_degree_index = rotation_degree / 90;
+
+    if rotation_degree_index >= 4 {
+        rotation_degree_index = rotation_degree_index % 4;
+    }
+
+    if rotation_direction == 'L' {
+        rotation_degree_index = 4 - rotation_degree_index;
+
+    }
+    
+    let quadrants = [1, 4, 3, 2]; // in this order since i move clockwise
+    let mut current_quadrant_index:i32 = 0;
+
+    if (waypoint_coordinate.0 > -1 && waypoint_coordinate.1 > -1) {
+        current_quadrant_index = 0;
+    } else if (waypoint_coordinate.0 > -1 && waypoint_coordinate.1 < 0) {
+        current_quadrant_index = 1;
+    } else if (waypoint_coordinate.0 < 0 && waypoint_coordinate.1 < 0) {
+        current_quadrant_index = 2;
+    } else if (waypoint_coordinate.0 < 0 && waypoint_coordinate.1 > -1) {
+        current_quadrant_index = 3;
+    }
+    
+    while (rotation_degree_index != 0) {
+        let x_coordinate = waypoint_coordinate.0;
+
+        waypoint_coordinate.0 = waypoint_coordinate.1;
+        waypoint_coordinate.1 = x_coordinate;
+
+        rotation_degree_index -= 1;
+        current_quadrant_index+=1;
+    }
+
+    if current_quadrant_index >= 4 {
+        current_quadrant_index = current_quadrant_index - 4;
+    }
+
+    waypoint_coordinate = twelth_problem_second_part_transform_coordinate_wrt_quadrant(current_quadrant_index, waypoint_coordinate);
+
+    return waypoint_coordinate;
+}
+
+fn twelth_problem_second_part_transform_coordinate_wrt_quadrant(current_quadrant_index:i32, mut waypoint_coordinate:(i32, i32)) -> (i32, i32) {
+    let quadrants = [1, 4, 3, 2];
+
+    println!("Current Index {}", current_quadrant_index);
+    let current_quadrant = quadrants[current_quadrant_index as usize];
+
+    if current_quadrant == 1 {
+
+        if waypoint_coordinate.0 < 0 {
+            waypoint_coordinate.0 = -(waypoint_coordinate.0);
+        }
+
+        if waypoint_coordinate.1 < 0 {
+            waypoint_coordinate.1 = -(waypoint_coordinate.1);
+        }
+    } else if current_quadrant == 2 {
+        
+        if waypoint_coordinate.0 > 0 {
+            waypoint_coordinate.0 = -(waypoint_coordinate.0);
+        }
+
+        if waypoint_coordinate.1 < 0 {
+            waypoint_coordinate.1 = -(waypoint_coordinate.1);
+        }
+    } else if current_quadrant == 3 {
+
+        if waypoint_coordinate.0 > 0 {
+            waypoint_coordinate.0 = -(waypoint_coordinate.0);
+        }
+
+        if waypoint_coordinate.1 > 0 {
+            waypoint_coordinate.1 = -(waypoint_coordinate.1);
+        }
+    } else if current_quadrant == 4 {
+
+        if waypoint_coordinate.0 < 0 {
+            waypoint_coordinate.0 = -(waypoint_coordinate.0);
+        }
+
+        if waypoint_coordinate.1 > 0 {
+            waypoint_coordinate.1 = -(waypoint_coordinate.1);
+        }
+    }
+
+    return waypoint_coordinate;
+}
+
+
+
+fn thirteenth_problem_first_part() -> io::Result<()> {
+    let file = File::open("./data/13.txt")?;
+    let reader = BufReader::new(file);
+
+    let mut time_to_depart:i32 = 0;
+    let mut index = 0;
+    let mut bus_numbers:Vec<i32> = vec![];
+
+    for line in reader.lines() {
+
+        let string:&str = &line?;
+
+        if (index == 0) {
+            time_to_depart = string.to_string().parse::<i32>().unwrap();
+        }
+        else {
+            let mut split = string.split(",");
+
+            for s in split {
+
+                if s != "x" {
+                    bus_numbers.push(s.to_string().parse::<i32>().unwrap());
+                }
+            }
+        }
+
+        index+=1;
+    }
+    
+    bus_numbers.sort();
+
+    let mut earliest_bus = bus_numbers[0];
+    let mut earliest_departure = 0;
+
+    for i in 0..bus_numbers.len() {
+        let earliest_departure_of_that_bus = thirteenth_problem_first_part_get_closest_number_divisible(time_to_depart, bus_numbers[i]);
+        println!("{}", earliest_departure_of_that_bus);
+        if (i == 0) {
+            earliest_departure = earliest_departure_of_that_bus;
+        } 
+
+        if earliest_departure > earliest_departure_of_that_bus {
+            earliest_bus = bus_numbers[i];
+            earliest_departure = earliest_departure_of_that_bus;
+        }
+        
+
+    }
+
+    let final_answer = (earliest_departure - time_to_depart) * earliest_bus; 
+    println!("Closest number {} {} {}", earliest_bus, earliest_departure, final_answer);
+    Ok(())
+}
+
+fn thirteenth_problem_first_part_get_closest_number_divisible(time:i32, bus_number:i32) -> i32 {
+    let mut quotient = time / bus_number;
+    let closest_number_before = bus_number * quotient;
+
+    if closest_number_before == time {
+        return time;
+    }
+
+    let closest_number_after = closest_number_before + bus_number;
+
+    return closest_number_after;
+    
 }
